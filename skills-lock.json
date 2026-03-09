@@ -10,6 +10,11 @@
       "source": "lombiq/tailwind-agent-skills",
       "sourceType": "github",
       "computedHash": "883754f860c9b4115ae7bf14b5dabb469a297c74b8a308a2d870d9c90af1ac00"
+    },
+    "tanstack-router": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "24beccc4016f91bab65547209cfd849ea5e66f3d5d92820683a9dd84669ced56"
     }
   }
 }
