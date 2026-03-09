@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "computedHash": "91c02eb706f046fb9d6a061efbb96496e4be751b5b14c283cf82baaa50f3a985"
+    },
+    "tailwind-4-docs": {
+      "source": "lombiq/tailwind-agent-skills",
+      "sourceType": "github",
+      "computedHash": "883754f860c9b4115ae7bf14b5dabb469a297c74b8a308a2d870d9c90af1ac00"
+    }
+  }
+}
