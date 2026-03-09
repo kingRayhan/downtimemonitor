@@ -1,0 +1,1102 @@
+openapi: 3.0.0
+
+info:
+  title: RM2AI Scoped API (Admin / B2B / B2C / Member)
+  version: 1.0.0
+  description: |
+    This OpenAPI spec scopes endpoints by audience:
+      - /admin/*  : SUPER_ADMIN platform operations (cross-tenant)
+      - /b2b/*    : B2B tenant-scoped operations (TENANT_ADMIN/STAFF/DOCTOR)
+      - /b2c/*    : B2C tenant-scoped operations (TENANT_ADMIN for family/individual)
+      - /member/* : member-facing mobile operations (MEMBER/FAMILY_MEMBER)
+
+    Authorization:
+      - AWS Cognito Bearer JWT
+      - Role and tenant scoping are enforced by a single policy layer on the backend.
+      - IMPORTANT: tenant_id is taken from JWT context for tenant-scoped routes.
+
+servers:
+  - url: https://api.rm2ai.com/v1
+    description: Production
+
+tags:
+  - name: Auth
+    description: Registration and authentication
+  - name: Admin - Tenants
+    description: Super admin tenant lifecycle (approve/reject, pricing, global listing)
+  - name: Admin - Users
+    description: Super admin global user operations (cross-tenant)
+  - name: Admin - Wearables & Logistics
+    description: Super admin fulfillment operations (orders processing/disbursement/shipping)
+  - name: B2B - Users
+    description: B2B tenant-scoped user operations
+  - name: B2B - Members
+    description: B2B tenant-scoped member CRUD (patients)
+  - name: B2B - Member Care
+    description: B2B tenant-scoped member-care sub-resources (geo-fencing, vitals, meds, logs, notifications)
+  - name: B2B - Billing
+    description: B2B tenant billing & invoices
+  - name: B2B - Wearables
+    description: B2B tenant wearables & logistics (inventory, attach/detach, place orders)
+  - name: B2C - Members
+    description: B2C tenant-scoped member operations (family/individual)
+  - name: B2C - Member Care
+    description: B2C tenant-scoped member-care sub-resources (geo-fencing, vitals, meds, logs, notifications)
+  - name: B2C - Billing
+    description: B2C tenant billing & invoices
+  - name: Member - Care
+    description: Member self-scoped health/care endpoints
+
+security:
+  - CognitoAuth: []
+
+components:
+  securitySchemes:
+    CognitoAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+      description: Resource identifier.
+
+    VitalTypeParam:
+      name: vital_type
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [hr, spo2, blood_pressure, sleep]
+      description: Vital stream identifier.
+
+    InvoiceTypeParam:
+      name: type
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [b2b, b2c]
+      description: Invoice category.
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        message: { type: string }
+        code: { type: string }
+        details:
+          type: object
+          additionalProperties: true
+
+    # -----------------------
+    # AUTH REQUESTS
+    # -----------------------
+    RegisterB2BRequest:
+      type: object
+      description: |
+        Web signup: B2B organization tenant admin registration.
+        Tenant remains PENDING until SUPER_ADMIN approves (pricing config required).
+      properties:
+        organization:
+          type: object
+          properties:
+            legal_name: { type: string }
+            dba: { type: string }
+            industry: { type: string }
+            organization_size: { type: string }
+            ein_tax_id: { type: string }
+            sales_tax_exemption_number: { type: string }
+          required: [legal_name, industry, organization_size, ein_tax_id]
+        address:
+          type: object
+          properties:
+            line1: { type: string }
+            line2: { type: string }
+            city: { type: string }
+            state: { type: string }
+            zip: { type: string }
+            country: { type: string }
+          required: [line1, city, state, zip, country]
+        representative:
+          type: object
+          properties:
+            full_name: { type: string }
+            email: { type: string, format: email }
+          required: [full_name, email]
+        contact:
+          type: object
+          properties:
+            organization_email: { type: string, format: email }
+            primary_contact_name: { type: string }
+            phone_number: { type: string }
+          required: [organization_email, primary_contact_name, phone_number]
+        billing_contact:
+          type: object
+          nullable: true
+          properties:
+            name: { type: string }
+            email: { type: string, format: email }
+        operational:
+          type: object
+          properties:
+            estimated_member_count: { type: integer, minimum: 0 }
+            expected_starting_date: { type: string, format: date }
+          required: [estimated_member_count, expected_starting_date]
+        agreements:
+          type: object
+          properties:
+            agree_tos: { type: boolean }
+            agree_privacy: { type: boolean }
+            authorized_representative: { type: boolean }
+          required: [agree_tos, agree_privacy, authorized_representative]
+      required:
+        [
+          organization,
+          address,
+          representative,
+          contact,
+          operational,
+          agreements,
+        ]
+
+    RegisterB2CRequest:
+      type: object
+      description: |
+        Web signup: B2C individual/family tenant admin registration.
+        Tenant is ACTIVE immediately.
+      properties:
+        personal:
+          type: object
+          properties:
+            first_name: { type: string }
+            last_name: { type: string, nullable: true }
+            email: { type: string, format: email }
+          required: [first_name, email]
+        address:
+          type: object
+          properties:
+            line1: { type: string }
+            line2: { type: string }
+            city: { type: string }
+            state: { type: string }
+            zip: { type: string }
+            country: { type: string }
+          required: [line1, city, state, zip, country]
+        agreements:
+          type: object
+          properties:
+            agree_tos: { type: boolean }
+            agree_privacy: { type: boolean }
+            agree_baa: { type: boolean }
+          required: [agree_tos, agree_privacy, agree_baa]
+      required: [personal, address, agreements]
+
+    MobileRegisterMemberRequest:
+      type: object
+      description: |
+        Member mobile signup. Typically creates MEMBER user + OTP email verification.
+        Backend decides which tenant the member belongs to.
+      properties:
+        first_name: { type: string }
+        last_name: { type: string, nullable: true }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        date_of_birth: { type: string, format: date, nullable: true }
+        ssn: { type: string, nullable: true }
+        address:
+          type: object
+          properties:
+            line1: { type: string }
+            line2: { type: string }
+            city: { type: string }
+            state: { type: string }
+            zip: { type: string }
+            country: { type: string }
+          required: [line1, line2, city, state, zip, country]
+      required: [first_name, email, phone_number, address]
+
+    # -----------------------
+    # ADMIN REQUESTS
+    # -----------------------
+    PricingConfig:
+      type: object
+      properties:
+        wearable_price: { type: number }
+        monthly_fee: { type: number }
+        shipping_fee: { type: number }
+      required: [wearable_price, monthly_fee, shipping_fee]
+
+    TenantReviewRequest:
+      type: object
+      properties:
+        decision: { type: string, enum: [approve, reject] }
+        pricing_config:
+          $ref: "#/components/schemas/PricingConfig"
+      required: [decision]
+
+    AdminCreateUserRequest:
+      type: object
+      description: |
+        SUPER_ADMIN creates a user across tenants.
+        Typical uses:
+          - Create SUPER_ADMIN
+          - Create TENANT_ADMIN for an existing tenant
+          - Create STAFF/DOCTOR in a tenant
+      properties:
+        email: { type: string, format: email }
+        full_name: { type: string }
+        role:
+          type: string
+          enum: [SUPER_ADMIN, TENANT_ADMIN, STAFF, DOCTOR]
+        tenant_id:
+          type: string
+          nullable: true
+          description: Required unless role == SUPER_ADMIN.
+      required: [email, full_name, role]
+
+    # -----------------------
+    # TENANT REQUESTS
+    # -----------------------
+    CreateTenantUserRequest:
+      type: object
+      description: Create a tenant-scoped user (STAFF/DOCTOR/TENANT_ADMIN if allowed).
+      properties:
+        email: { type: string, format: email }
+        full_name: { type: string }
+        role:
+          type: string
+          enum: [TENANT_ADMIN, STAFF, DOCTOR]
+      required: [email, full_name, role]
+
+    NotificationUpdateRequest:
+      type: object
+      properties:
+        notification_id: { type: string }
+        status: { type: string, enum: [read, dismissed] }
+      required: [notification_id, status]
+
+    BillingSetupRequest:
+      type: object
+      properties:
+        provider: { type: string, enum: [stripe, other] }
+        payment_method_token: { type: string }
+      required: [provider, payment_method_token]
+
+    AttachWearableRequest:
+      type: object
+      properties:
+        wearable_id: { type: string }
+        member_id: { type: string }
+      required: [wearable_id, member_id]
+
+    DetachWearableRequest:
+      type: object
+      properties:
+        wearable_id: { type: string }
+        member_id: { type: string }
+      required: [wearable_id, member_id]
+
+    AdminFulfillOrderRequest:
+      type: object
+      description: |
+        Admin fulfillment payload. Admin can:
+          - update status
+          - add shipping/tracking
+          - record device disbursement (which wearable IDs were allocated)
+      properties:
+        status:
+          type: string
+          enum: [processing, shipped, completed, cancelled]
+        tracking_number:
+          type: string
+          nullable: true
+        courier:
+          type: string
+          nullable: true
+        shipped_at:
+          type: string
+          format: date-time
+          nullable: true
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+        disbursement:
+          type: object
+          nullable: true
+          properties:
+            wearables:
+              type: array
+              items:
+                type: object
+                properties:
+                  wearable_id: { type: string }
+                  serial: { type: string, nullable: true }
+                  imei: { type: string, nullable: true }
+                required: [wearable_id]
+      required: [status]
+
+paths:
+  # ===========================================================================
+  # AUTH (UNSCOPED ENTRYPOINTS)
+  # ===========================================================================
+  /auth/register/b2b:
+    post:
+      tags: [Auth]
+      summary: Web Signup (B2B) - Register organization tenant admin
+      description: |
+        Creates B2B tenant + tenant admin user.
+        Tenant remains PENDING until SUPER_ADMIN approval.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegisterB2BRequest" }
+      responses:
+        "201": { description: Registered. Awaiting Admin Approval. }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "409":
+          description: Conflict / already exists
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /auth/register/b2c:
+    post:
+      tags: [Auth]
+      summary: Web Signup (B2C) - Register individual/family tenant admin
+      description: Creates B2C tenant + tenant admin user. Tenant is ACTIVE immediately.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegisterB2CRequest" }
+      responses:
+        "201": { description: Registered and Active. }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "409":
+          description: Conflict / already exists
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /auth/register/member:
+    post:
+      tags: [Auth]
+      summary: Mobile Signup - Register a Member (OTP)
+      description: Creates MEMBER user + member profile and sends OTP email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MobileRegisterMemberRequest" }
+      responses:
+        "201": { description: Created. OTP sent to email. }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  # ===========================================================================
+  # ADMIN SCOPE (SUPER_ADMIN)
+  # ===========================================================================
+  /admin/tenants:
+    get:
+      tags: [Admin - Tenants]
+      summary: List active tenants (platform-wide)
+      description: Returns all tenants where deleted_at is null (SUPER_ADMIN only).
+      responses:
+        "200": { description: Success }
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /admin/tenants/soft-deleted:
+    get:
+      tags: [Admin - Tenants]
+      summary: List soft-deleted tenants (platform-wide)
+      description: SUPER_ADMIN only.
+      responses:
+        "200": { description: Success }
+
+  /admin/tenants/{id}/review:
+    patch:
+      tags: [Admin - Tenants]
+      summary: Approve/Reject B2B tenant + set pricing
+      description: SUPER_ADMIN only.
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TenantReviewRequest" }
+      responses:
+        "200": { description: Status Updated }
+
+  /admin/users:
+    get:
+      tags: [Admin - Users]
+      summary: List active users (platform-wide)
+      description: Returns all users across all tenants (deleted_at == null) (SUPER_ADMIN only).
+      responses:
+        "200": { description: Success }
+
+    post:
+      tags: [Admin - Users]
+      summary: Create user (platform-wide)
+      description: |
+        SUPER_ADMIN creates a user across tenants (Cognito + DB).
+        - For SUPER_ADMIN role: tenant_id should be null/omitted.
+        - For tenant-scoped roles: tenant_id is required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCreateUserRequest" }
+      responses:
+        "201": { description: Created }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /admin/users/soft-deleted:
+    get:
+      tags: [Admin - Users]
+      summary: List soft-deleted users (platform-wide)
+      description: SUPER_ADMIN only.
+      responses:
+        "200": { description: Success }
+
+  /admin/users/{id}:
+    get:
+      tags: [Admin - Users]
+      summary: Get user details (platform-wide)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+    patch:
+      tags: [Admin - Users]
+      summary: Update user (platform-wide)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [Admin - Users]
+      summary: Soft delete user (platform-wide)
+      description: Sets deleted_at = now().
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Soft-deleted }
+
+  /admin/users/permanent/{id}:
+    delete:
+      tags: [Admin - Users]
+      summary: Permanent delete user (platform-wide)
+      description: Removes user from Cognito + DB permanently.
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204": { description: Deleted }
+
+  # ===========================================================================
+  # ADMIN - WEARABLES & LOGISTICS (FULFILLMENT)
+  # ===========================================================================
+  /admin/wearables/orders:
+    get:
+      tags: [Admin - Wearables & Logistics]
+      summary: List all wearable orders (platform-wide)
+      description: |
+        SUPER_ADMIN/fulfillment ops.
+        Returns orders across all tenants. Use this to process/disburse orders.
+      responses:
+        "200": { description: Success }
+
+  /admin/wearables/orders/{id}:
+    get:
+      tags: [Admin - Wearables & Logistics]
+      summary: Get wearable order details (platform-wide)
+      description: SUPER_ADMIN/fulfillment ops.
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+    patch:
+      tags: [Admin - Wearables & Logistics]
+      summary: Process/Disburse/Ship/Complete order (platform-wide)
+      description: |
+        SUPER_ADMIN/fulfillment ops updates order status and shipping/disbursement details.
+        Tenants do NOT update order status.
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminFulfillOrderRequest" }
+      responses:
+        "200": { description: Updated }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  # ===========================================================================
+  # B2B SCOPE (TENANT_ADMIN/STAFF/DOCTOR) - Tenant scoped by JWT tenant_id
+  # ===========================================================================
+  /b2b/users:
+    get:
+      tags: [B2B - Users]
+      summary: List active users (tenant-scoped)
+      responses:
+        "200": { description: Success }
+    post:
+      tags: [B2B - Users]
+      summary: Create tenant user (Cognito + DB)
+      description: Typically TENANT_ADMIN only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateTenantUserRequest" }
+      responses:
+        "201": { description: Created }
+
+  /b2b/users/soft-deleted:
+    get:
+      tags: [B2B - Users]
+      summary: List soft-deleted users (tenant-scoped)
+      responses:
+        "200": { description: Success }
+
+  /b2b/users/{id}:
+    get:
+      tags: [B2B - Users]
+      summary: Get user details (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+    patch:
+      tags: [B2B - Users]
+      summary: Update user (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [B2B - Users]
+      summary: Soft delete user (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Soft-deleted }
+
+  /b2b/users/permanent/{id}:
+    delete:
+      tags: [B2B - Users]
+      summary: Permanent delete user (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204": { description: Deleted }
+
+  /b2b/members:
+    get:
+      tags: [B2B - Members]
+      summary: List active members (tenant-scoped)
+      responses:
+        "200": { description: Success }
+    post:
+      tags: [B2B - Members]
+      summary: Add member (Cognito/OTP)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MobileRegisterMemberRequest" }
+      responses:
+        "201": { description: Success }
+
+  /b2b/members/soft-deleted:
+    get:
+      tags: [B2B - Members]
+      summary: List soft-deleted members (tenant-scoped)
+      responses:
+        "200": { description: Success }
+
+  /b2b/members/{id}:
+    get:
+      tags: [B2B - Members]
+      summary: Get member details (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+    patch:
+      tags: [B2B - Members]
+      summary: Update member (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [B2B - Members]
+      summary: Soft delete member (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Soft-deleted }
+
+  # ---------------------------------------------------------------------------
+  # B2B - MEMBER CARE
+  # ---------------------------------------------------------------------------
+  /b2b/members/{id}/geo-fencing:
+    get:
+      tags: [B2B - Member Care]
+      summary: Get geo-fence zones & schedules (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+    post:
+      tags: [B2B - Member Care]
+      summary: Create geo-fence zone (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "201": { description: Created }
+    patch:
+      tags: [B2B - Member Care]
+      summary: Update geo-fence monitoring settings (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200": { description: Updated }
+
+  /b2b/members/{id}/vitals/{vital_type}:
+    get:
+      tags: [B2B - Member Care]
+      summary: Get vital time-series (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - $ref: "#/components/parameters/VitalTypeParam"
+      responses:
+        "200": { description: Returns vital samples }
+
+  /b2b/members/{id}/medications:
+    get:
+      tags: [B2B - Member Care]
+      summary: List medications (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+
+  /b2b/members/{id}/fall-detection:
+    get:
+      tags: [B2B - Member Care]
+      summary: Get fall detection logs/settings (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+
+  /b2b/members/{id}/water-intakes:
+    get:
+      tags: [B2B - Member Care]
+      summary: Get water intake logs (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+
+  /b2b/members/{id}/notifications:
+    get:
+      tags: [B2B - Member Care]
+      summary: Get member notifications (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+
+  /b2b/members/{id}/notification:
+    patch:
+      tags: [B2B - Member Care]
+      summary: Mark notification read/dismissed (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NotificationUpdateRequest" }
+      responses:
+        "200": { description: Updated }
+
+  # ---------------------------------------------------------------------------
+  # B2B - BILLING
+  # ---------------------------------------------------------------------------
+  /b2b/billing/setup:
+    post:
+      tags: [B2B - Billing]
+      summary: Setup billing method (tenant-scoped)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BillingSetupRequest" }
+      responses:
+        "200": { description: Success }
+
+  /b2b/billing/invoices:
+    get:
+      tags: [B2B - Billing]
+      summary: List invoices (tenant-scoped)
+      responses:
+        "200": { description: Success }
+
+  # ---------------------------------------------------------------------------
+  # B2B - WEARABLES
+  # ---------------------------------------------------------------------------
+  /b2b/wearables:
+    get:
+      tags: [B2B - Wearables]
+      summary: List wearables (tenant-scoped)
+      responses:
+        "200": { description: Success }
+
+  /b2b/wearables/attach-member:
+    patch:
+      tags: [B2B - Wearables]
+      summary: Attach wearable to member (tenant-scoped)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AttachWearableRequest" }
+      responses:
+        "200": { description: Success }
+
+  /b2b/wearables/detach-member:
+    patch:
+      tags: [B2B - Wearables]
+      summary: Detach wearable from member (tenant-scoped)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DetachWearableRequest" }
+      responses:
+        "200": { description: Success }
+
+  /b2b/wearables/orders:
+    get:
+      tags: [B2B - Wearables]
+      summary: List orders (tenant-scoped)
+      description: Tenants can view their own orders. Admin processes and updates status.
+      responses:
+        "200": { description: Success }
+    post:
+      tags: [B2B - Wearables]
+      summary: Place new hardware order (tenant-scoped)
+      description: Creates an order request. Admin will process/disburse and update status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity: { type: integer, minimum: 1 }
+                shipping_address:
+                  type: object
+                  properties:
+                    line1: { type: string }
+                    line2: { type: string }
+                    city: { type: string }
+                    state: { type: string }
+                    zip: { type: string }
+                    country: { type: string }
+                  required: [line1, city, state, zip, country]
+              required: [quantity, shipping_address]
+      responses:
+        "201": { description: Created }
+
+  # ===========================================================================
+  # B2C SCOPE (TENANT_ADMIN) - Tenant scoped by JWT tenant_id
+  # ===========================================================================
+  /b2c/members:
+    get:
+      tags: [B2C - Members]
+      summary: List active members (tenant-scoped)
+      responses:
+        "200": { description: Success }
+    post:
+      tags: [B2C - Members]
+      summary: Add member (tenant-scoped)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MobileRegisterMemberRequest" }
+      responses:
+        "201": { description: Success }
+
+  /b2c/members/{id}:
+    get:
+      tags: [B2C - Members]
+      summary: Get member details (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+    patch:
+      tags: [B2C - Members]
+      summary: Update member (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [B2C - Members]
+      summary: Soft delete member (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Soft-deleted }
+
+  # ---------------------------------------------------------------------------
+  # B2C - MEMBER CARE (ADDED)
+  # ---------------------------------------------------------------------------
+  /b2c/members/{id}/geo-fencing:
+    get:
+      tags: [B2C - Member Care]
+      summary: Get geo-fence zones & schedules (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+    post:
+      tags: [B2C - Member Care]
+      summary: Create geo-fence zone (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "201": { description: Created }
+    patch:
+      tags: [B2C - Member Care]
+      summary: Update geo-fence monitoring settings (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200": { description: Updated }
+
+  /b2c/members/{id}/vitals/{vital_type}:
+    get:
+      tags: [B2C - Member Care]
+      summary: Get vital time-series (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - $ref: "#/components/parameters/VitalTypeParam"
+      responses:
+        "200": { description: Returns vital samples }
+
+  /b2c/members/{id}/medications:
+    get:
+      tags: [B2C - Member Care]
+      summary: List medications (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+
+  /b2c/members/{id}/fall-detection:
+    get:
+      tags: [B2C - Member Care]
+      summary: Get fall detection logs/settings (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+
+  /b2c/members/{id}/water-intakes:
+    get:
+      tags: [B2C - Member Care]
+      summary: Get water intake logs (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+
+  /b2c/members/{id}/notifications:
+    get:
+      tags: [B2C - Member Care]
+      summary: Get member notifications (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200": { description: Success }
+
+  /b2c/members/{id}/notification:
+    patch:
+      tags: [B2C - Member Care]
+      summary: Mark notification read/dismissed (tenant-scoped)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NotificationUpdateRequest" }
+      responses:
+        "200": { description: Updated }
+
+  # ---------------------------------------------------------------------------
+  # B2C - BILLING
+  # ---------------------------------------------------------------------------
+  /b2c/billing/setup:
+    post:
+      tags: [B2C - Billing]
+      summary: Setup billing method (tenant-scoped)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BillingSetupRequest" }
+      responses:
+        "200": { description: Success }
+
+  /b2c/billing/invoices:
+    get:
+      tags: [B2C - Billing]
+      summary: List invoices (tenant-scoped)
+      responses:
+        "200": { description: Success }
+
+  # ===========================================================================
+  # MEMBER SCOPE (MEMBER/FAMILY_MEMBER) - Self scoped by JWT userId/memberId
+  # ===========================================================================
+  /member/me:
+    get:
+      tags: [Member - Care]
+      summary: Get my profile (self-scoped)
+      responses:
+        "200": { description: Success }
+
+  /member/me/vitals/{vital_type}:
+    get:
+      tags: [Member - Care]
+      summary: Get my vitals (self-scoped)
+      parameters:
+        - $ref: "#/components/parameters/VitalTypeParam"
+      responses:
+        "200": { description: Success }
+
+  /member/me/geo-fencing:
+    get:
+      tags: [Member - Care]
+      summary: Get my geo-fence config (self-scoped)
+      responses:
+        "200": { description: Success }
+
+  /member/me/fall-detection:
+    get:
+      tags: [Member - Care]
+      summary: Get my fall detection logs/settings (self-scoped)
+      responses:
+        "200": { description: Success }
+
+  /member/me/water-intakes:
+    get:
+      tags: [Member - Care]
+      summary: Get my water intake logs (self-scoped)
+      responses:
+        "200": { description: Success }
+
+  /member/me/notifications:
+    get:
+      tags: [Member - Care]
+      summary: Get my notifications (self-scoped)
+      responses:
+        "200": { description: Success }
+
+  /member/me/notification:
+    patch:
+      tags: [Member - Care]
+      summary: Mark my notification read/dismissed (self-scoped)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NotificationUpdateRequest" }
+      responses:
+        "200": { description: Updated }
