@@ -11,39 +11,175 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatusPagesRouteImport } from './routes/status-pages'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as MonitorsRouteImport } from './routes/monitors'
+import { Route as LogsRouteImport } from './routes/logs'
+import { Route as IncidentsRouteImport } from './routes/incidents'
+import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as MonitorsMonitorIdRouteImport } from './routes/monitors.$monitorId'
 
 const IndexLazyRouteImport = createFileRoute('/')()
 
+const StatusPagesRoute = StatusPagesRouteImport.update({
+  id: '/status-pages',
+  path: '/status-pages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonitorsRoute = MonitorsRouteImport.update({
+  id: '/monitors',
+  path: '/monitors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogsRoute = LogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IncidentsRoute = IncidentsRouteImport.update({
+  id: '/incidents',
+  path: '/incidents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexLazyRoute = IndexLazyRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+const MonitorsMonitorIdRoute = MonitorsMonitorIdRouteImport.update({
+  id: '/$monitorId',
+  path: '/$monitorId',
+  getParentRoute: () => MonitorsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/alerts': typeof AlertsRoute
+  '/incidents': typeof IncidentsRoute
+  '/logs': typeof LogsRoute
+  '/monitors': typeof MonitorsRouteWithChildren
+  '/settings': typeof SettingsRoute
+  '/status-pages': typeof StatusPagesRoute
+  '/monitors/$monitorId': typeof MonitorsMonitorIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/alerts': typeof AlertsRoute
+  '/incidents': typeof IncidentsRoute
+  '/logs': typeof LogsRoute
+  '/monitors': typeof MonitorsRouteWithChildren
+  '/settings': typeof SettingsRoute
+  '/status-pages': typeof StatusPagesRoute
+  '/monitors/$monitorId': typeof MonitorsMonitorIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
+  '/alerts': typeof AlertsRoute
+  '/incidents': typeof IncidentsRoute
+  '/logs': typeof LogsRoute
+  '/monitors': typeof MonitorsRouteWithChildren
+  '/settings': typeof SettingsRoute
+  '/status-pages': typeof StatusPagesRoute
+  '/monitors/$monitorId': typeof MonitorsMonitorIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/alerts'
+    | '/incidents'
+    | '/logs'
+    | '/monitors'
+    | '/settings'
+    | '/status-pages'
+    | '/monitors/$monitorId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/alerts'
+    | '/incidents'
+    | '/logs'
+    | '/monitors'
+    | '/settings'
+    | '/status-pages'
+    | '/monitors/$monitorId'
+  id:
+    | '__root__'
+    | '/'
+    | '/alerts'
+    | '/incidents'
+    | '/logs'
+    | '/monitors'
+    | '/settings'
+    | '/status-pages'
+    | '/monitors/$monitorId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  AlertsRoute: typeof AlertsRoute
+  IncidentsRoute: typeof IncidentsRoute
+  LogsRoute: typeof LogsRoute
+  MonitorsRoute: typeof MonitorsRouteWithChildren
+  SettingsRoute: typeof SettingsRoute
+  StatusPagesRoute: typeof StatusPagesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/status-pages': {
+      id: '/status-pages'
+      path: '/status-pages'
+      fullPath: '/status-pages'
+      preLoaderRoute: typeof StatusPagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monitors': {
+      id: '/monitors'
+      path: '/monitors'
+      fullPath: '/monitors'
+      preLoaderRoute: typeof MonitorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logs': {
+      id: '/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/incidents': {
+      id: '/incidents'
+      path: '/incidents'
+      fullPath: '/incidents'
+      preLoaderRoute: typeof IncidentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -51,11 +187,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/monitors/$monitorId': {
+      id: '/monitors/$monitorId'
+      path: '/$monitorId'
+      fullPath: '/monitors/$monitorId'
+      preLoaderRoute: typeof MonitorsMonitorIdRouteImport
+      parentRoute: typeof MonitorsRoute
+    }
   }
 }
 
+interface MonitorsRouteChildren {
+  MonitorsMonitorIdRoute: typeof MonitorsMonitorIdRoute
+}
+
+const MonitorsRouteChildren: MonitorsRouteChildren = {
+  MonitorsMonitorIdRoute: MonitorsMonitorIdRoute,
+}
+
+const MonitorsRouteWithChildren = MonitorsRoute._addFileChildren(
+  MonitorsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  AlertsRoute: AlertsRoute,
+  IncidentsRoute: IncidentsRoute,
+  LogsRoute: LogsRoute,
+  MonitorsRoute: MonitorsRouteWithChildren,
+  SettingsRoute: SettingsRoute,
+  StatusPagesRoute: StatusPagesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

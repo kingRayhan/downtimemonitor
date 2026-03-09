@@ -1,3 +1,4 @@
+import { ConsolePage } from "@/components/console-page"
 import { createLazyFileRoute } from "@tanstack/react-router"
 
 export const Route = createLazyFileRoute("/")({
@@ -5,5 +6,5 @@ export const Route = createLazyFileRoute("/")({
 })
 
 function RouteComponent() {
-  return <h1>Hello World</h1>
+  return <ConsolePage pageId="dashboard" />
 }
