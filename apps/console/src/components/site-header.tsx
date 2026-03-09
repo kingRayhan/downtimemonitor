@@ -1,5 +1,6 @@
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react"
 
 export function SiteHeader() {
   return (
@@ -11,6 +12,15 @@ export function SiteHeader() {
           className="mx-2 h-4 data-vertical:self-auto"
         />
         <h1 className="text-base font-medium">Documents</h1>
+      </div>
+      <div className="flex items-center gap-2 px-4">
+        <Show when="signed-out">
+          <SignInButton />
+          <SignUpButton />
+        </Show>
+        <Show when="signed-in">
+          <UserButton />
+        </Show>
       </div>
     </header>
   )
