@@ -5,5 +5,5 @@ export const Route = createLazyFileRoute("/")({
 })
 
 function RouteComponent() {
-  return <div>Hello "/"!</div>
+  return <h1>Hello World</h1>
 }
