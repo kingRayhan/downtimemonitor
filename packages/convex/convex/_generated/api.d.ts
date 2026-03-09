@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as http from "../http.js";
 import type * as users_mutations from "../users/mutations.js";
 import type * as users_queries from "../users/queries.js";
 import type * as workspaceInvites_mutations from "../workspaceInvites/mutations.js";
@@ -24,6 +25,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  http: typeof http;
   "users/mutations": typeof users_mutations;
   "users/queries": typeof users_queries;
   "workspaceInvites/mutations": typeof workspaceInvites_mutations;

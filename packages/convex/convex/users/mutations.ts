@@ -23,7 +23,6 @@ export const create = mutation({
       ...args,
       created_at: now,
       updated_at: now,
-      deleted_at: null,
     } as any);
     return id;
   },
