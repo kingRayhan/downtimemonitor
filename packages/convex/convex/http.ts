@@ -48,17 +48,17 @@ http.route({
     });
 
     // Soft-delete on user.deleted
-    // if (type === "user.deleted") {
-    //   if (existing) {
-    //     await ctx.runMutation(api.users.mutations.update, {
-    //       id: existing._id,
-    //       data: {
-    //         deleted_at: now,
-    //       },
-    //     });
-    //   }
-    //   return new Response(null, { status: 200 });
-    // }
+    if (type === "user.deleted") {
+      if (existing) {
+        await ctx.runMutation(api.users.mutations.update, {
+          id: existing._id,
+          data: {
+            deleted_at: now,
+          },
+        });
+      }
+      return new Response(null, { status: 200 });
+    }
 
     // Upsert on created/updated events
     if (!existing) {
