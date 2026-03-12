@@ -1,4 +1,6 @@
 import AppShield from "@/components/app-shield"
+import { WorkspaceLoader } from "@/components/workspace-loader"
+import { RedirectWhenNoWorkspace } from "@/components/redirect-when-no-workspace"
 import { Outlet, createRootRoute } from "@tanstack/react-router"
 
 export const Route = createRootRoute({
@@ -7,8 +9,11 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <AppShield>
-      <Outlet />
-    </AppShield>
+    <WorkspaceLoader>
+      
+      <AppShield>
+        <Outlet />
+      </AppShield>
+    </WorkspaceLoader>
   )
 }

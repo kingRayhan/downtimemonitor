@@ -1,6 +1,7 @@
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Show, UserButton } from "@clerk/react"
+import { WorkspaceSwitcher } from "@/components/workspace-switcher"
 
 export function SiteHeader() {
   return (
@@ -15,6 +16,7 @@ export function SiteHeader() {
       </div>
       <div className="flex items-center gap-2 px-4">
         <Show when="signed-in">
+          <WorkspaceSwitcher />
           <UserButton />
         </Show>
       </div>

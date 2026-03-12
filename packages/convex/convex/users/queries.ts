@@ -9,25 +9,20 @@ const operatorValidator = v.union(
   v.literal("gt"),
   v.literal("gte"),
   v.literal("lt"),
-  v.literal("lte")
+  v.literal("lte"),
 );
 
 const userFilterKeyValidator = v.union(
-  v.literal("clerk_user_id"),
-  v.literal("primary_email"),
+  v.literal("auth_provider_id"),
+  v.literal("email"),
   v.literal("created_at"),
   v.literal("updated_at"),
-  v.literal("deleted_at")
+  v.literal("deleted_at"),
 );
 
 // ── Helpers ────────────────────────────────────────
 
-function applyOperator(
-  q: any,
-  key: string,
-  operator: string,
-  value: unknown
-) {
+function applyOperator(q: any, key: string, operator: string, value: unknown) {
   const indexName = `by_${key}` as const;
   switch (operator) {
     case "eq":
@@ -76,7 +71,7 @@ export const findMany = query({
         key: userFilterKeyValidator,
         value: v.any(),
         operator: operatorValidator,
-      })
+      }),
     ),
     limit: v.optional(v.number()),
     sortDirection: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
@@ -105,7 +100,7 @@ export const paginatedList = query({
         key: userFilterKeyValidator,
         value: v.any(),
         operator: operatorValidator,
-      })
+      }),
     ),
     sortDirection: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
   },

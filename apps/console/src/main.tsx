@@ -1,12 +1,15 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { ClerkProvider, Show, SignIn } from "@clerk/react"
+import { ConvexProvider, ConvexReactClient } from "convex/react"
 
 import "./index.css"
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { RouterProvider } from "@tanstack/react-router"
 import { getRouter } from "./routes"
+
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string)
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -15,7 +18,9 @@ createRoot(document.getElementById("root")!).render(
         publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
       >
         <Show when="signed-in">
-          <RouterProvider router={getRouter()} />
+          <ConvexProvider client={convex}>
+            <RouterProvider router={getRouter()} />
+          </ConvexProvider>
         </Show>
         <Show when="signed-out">
           <div className="flex h-screen items-center justify-center">

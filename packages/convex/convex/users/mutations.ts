@@ -8,8 +8,8 @@ import { v } from "convex/values";
 
 // ── Shared base fields ─────────────────────────────
 const baseUserFields = {
-  clerk_user_id: v.string(),
-  primary_email: v.string(),
+  auth_provider_id: v.string(),
+  email: v.string(),
   display_name: v.string(),
 } as const;
 
@@ -55,4 +55,3 @@ export const remove = mutation({
     return id;
   },
 });
-

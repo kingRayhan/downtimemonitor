@@ -111,3 +111,39 @@ export const paginatedList = query({
   },
 });
 
+/**
+ * List workspaces the given Clerk user is a member of (for switcher dropdown).
+ */
+export const listForClerkUser = query({
+  args: { clerk_user_id: v.string() },
+  handler: async (ctx, { clerk_user_id }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_user_id", (q) =>
+        q.eq("clerk_user_id", clerk_user_id)
+      )
+      .first();
+    if (!user) return [];
+
+    const memberships = await ctx.db
+      .query("workspace_members")
+      .withIndex("by_user_id", (q) => q.eq("user_id", user._id))
+      .collect();
+
+    const result: { id: (typeof memberships)[0]["workspace_id"]; slug: string; name: string; role: string }[] = [];
+    for (const m of memberships) {
+      if (m.deleted_at) continue;
+      const ws = await ctx.db.get(m.workspace_id);
+      if (ws && !ws.deleted_at) {
+        result.push({
+          id: ws._id,
+          slug: ws.slug,
+          name: ws.name,
+          role: m.role,
+        });
+      }
+    }
+    return result;
+  },
+});
+

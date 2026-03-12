@@ -7,9 +7,8 @@ import { v } from "convex/values";
  */
 
 const baseWorkspaceFields = {
-  slug: v.string(),
   name: v.string(),
-  created_by_user_id: v.id("users"),
+  owner_user_id: v.id("users"),
   billing_customer_id: v.optional(v.string()),
   plan: v.optional(v.string()),
   trial_ends_at: v.optional(v.string()),
@@ -19,12 +18,11 @@ export const create = mutation({
   args: baseWorkspaceFields,
   handler: async (ctx, args) => {
     const now = new Date().toISOString();
-    const id = await ctx.db.insert("workspaces", {
+    return ctx.db.insert("workspaces", {
       ...args,
       created_at: now,
       updated_at: now,
-    } as any);
-    return id;
+    });
   },
 });
 
@@ -57,4 +55,3 @@ export const remove = mutation({
     return id;
   },
 });
-

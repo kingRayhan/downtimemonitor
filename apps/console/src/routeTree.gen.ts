@@ -16,6 +16,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as MonitorsRouteImport } from './routes/monitors'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as IncidentsRouteImport } from './routes/incidents'
+import { Route as CreateWorkspaceRouteImport } from './routes/create-workspace'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as MonitorsMonitorIdRouteImport } from './routes/monitors.$monitorId'
 
@@ -46,6 +47,11 @@ const IncidentsRoute = IncidentsRouteImport.update({
   path: '/incidents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreateWorkspaceRoute = CreateWorkspaceRouteImport.update({
+  id: '/create-workspace',
+  path: '/create-workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AlertsRoute = AlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
@@ -65,6 +71,7 @@ const MonitorsMonitorIdRoute = MonitorsMonitorIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/alerts': typeof AlertsRoute
+  '/create-workspace': typeof CreateWorkspaceRoute
   '/incidents': typeof IncidentsRoute
   '/logs': typeof LogsRoute
   '/monitors': typeof MonitorsRouteWithChildren
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/alerts': typeof AlertsRoute
+  '/create-workspace': typeof CreateWorkspaceRoute
   '/incidents': typeof IncidentsRoute
   '/logs': typeof LogsRoute
   '/monitors': typeof MonitorsRouteWithChildren
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
   '/alerts': typeof AlertsRoute
+  '/create-workspace': typeof CreateWorkspaceRoute
   '/incidents': typeof IncidentsRoute
   '/logs': typeof LogsRoute
   '/monitors': typeof MonitorsRouteWithChildren
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alerts'
+    | '/create-workspace'
     | '/incidents'
     | '/logs'
     | '/monitors'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/alerts'
+    | '/create-workspace'
     | '/incidents'
     | '/logs'
     | '/monitors'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/alerts'
+    | '/create-workspace'
     | '/incidents'
     | '/logs'
     | '/monitors'
@@ -129,6 +141,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   AlertsRoute: typeof AlertsRoute
+  CreateWorkspaceRoute: typeof CreateWorkspaceRoute
   IncidentsRoute: typeof IncidentsRoute
   LogsRoute: typeof LogsRoute
   MonitorsRoute: typeof MonitorsRouteWithChildren
@@ -173,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IncidentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/create-workspace': {
+      id: '/create-workspace'
+      path: '/create-workspace'
+      fullPath: '/create-workspace'
+      preLoaderRoute: typeof CreateWorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/alerts': {
       id: '/alerts'
       path: '/alerts'
@@ -212,6 +232,7 @@ const MonitorsRouteWithChildren = MonitorsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   AlertsRoute: AlertsRoute,
+  CreateWorkspaceRoute: CreateWorkspaceRoute,
   IncidentsRoute: IncidentsRoute,
   LogsRoute: LogsRoute,
   MonitorsRoute: MonitorsRouteWithChildren,
