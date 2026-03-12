@@ -21,6 +21,9 @@ export function NavMain({
   const routerState = useRouterState()
   const pathname = routerState.location.pathname
 
+  const segments = pathname.split("/").filter(Boolean)
+  const workspaceId = segments[0]
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -46,18 +49,29 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                isActive={
-                  item.url === "/"
+              {(() => {
+                const targetPath =
+                  workspaceId && item.url !== "/"
+                    ? `/${workspaceId}${item.url}`
+                    : workspaceId && item.url === "/"
+                      ? `/${workspaceId}`
+                      : item.url
+                const isActive =
+                  targetPath === "/"
                     ? pathname === "/"
-                    : pathname.startsWith(item.url)
-                }
-                render={<Link to={item.url as never} />}
-              >
-                {item.icon}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
+                    : pathname.startsWith(targetPath)
+
+                return (
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    isActive={isActive}
+                    render={<Link to={targetPath as never} />}
+                  >
+                    {item.icon}
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                )
+              })()}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
