@@ -3,9 +3,13 @@ import { GenericActionCtx, httpRouter } from "convex/server";
 import { Webhook } from "svix";
 import { httpAction } from "./_generated/server";
 import { api } from "./_generated/api";
+import { createClerkClient } from "@clerk/backend";
+
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY!,
+});
 
 const http = httpRouter();
-
 http.route({
   path: "/clerk/webhook",
   method: "POST",
@@ -58,6 +62,13 @@ async function handleUserCreated(ctx: GenericActionCtx<any>, data: UserJSON) {
       });
     }
 
+    // update clerk user to add database user id in metadata
+    await clerkClient.users.updateUser(data.id, {
+      publicMetadata: {
+        database_user_id: existing._id.toString(),
+      },
+    });
+
     return;
   }
 
@@ -66,6 +77,13 @@ async function handleUserCreated(ctx: GenericActionCtx<any>, data: UserJSON) {
     auth_provider_id: data.id,
     email: data.email_addresses[0].email_address,
     display_name: `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim(),
+  });
+
+  // update clerk user to add database user id in metadata
+  await clerkClient.users.updateUser(data.id, {
+    publicMetadata: {
+      database_user_id: userId.toString(),
+    },
   });
 
   // Create personal workspace
