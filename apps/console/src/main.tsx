@@ -8,6 +8,7 @@ import "./index.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { RouterProvider } from "@tanstack/react-router"
 import { getRouter } from "./routes"
+import AuthProvider from "./providers/AuthProvider"
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string)
 
@@ -19,7 +20,9 @@ createRoot(document.getElementById("root")!).render(
       >
         <Show when="signed-in">
           <ConvexProvider client={convex}>
-            <RouterProvider router={getRouter()} />
+            <AuthProvider>
+              <RouterProvider router={getRouter()} />
+            </AuthProvider>
           </ConvexProvider>
         </Show>
         <Show when="signed-out">

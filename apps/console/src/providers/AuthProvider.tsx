@@ -29,7 +29,7 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     <AuthContext.Provider
       value={{
         user: user ?? null,
-        loading: !user && !clerkUser ? true : false,
+        loading: !!!user,
       }}
     >
       {children}
@@ -38,3 +38,11 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 }
 
 export default AuthProvider
+
+export const useAppSession = () => {
+  const context = React.useContext(AuthContext)
+  if (!context) {
+    throw new Error("useAppSession must be used within an AuthProvider")
+  }
+  return context
+}
