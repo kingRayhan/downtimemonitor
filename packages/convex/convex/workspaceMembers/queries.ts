@@ -1,13 +1,14 @@
 import { paginationOptsValidator } from "convex/server";
 import { query } from "../_generated/server";
 import { v } from "convex/values";
+import { Id } from "../_generated/dataModel";
 
 const operatorValidator = v.union(
   v.literal("eq"),
   v.literal("gt"),
   v.literal("gte"),
   v.literal("lt"),
-  v.literal("lte")
+  v.literal("lte"),
 );
 
 const workspaceMemberFilterKeyValidator = v.union(
@@ -15,17 +16,10 @@ const workspaceMemberFilterKeyValidator = v.union(
   v.literal("user_id"),
   v.literal("role"),
   v.literal("created_at"),
-  v.literal("deleted_at")
+  v.literal("deleted_at"),
 );
 
-type WorkspaceMemberFilterKey = typeof workspaceMemberFilterKeyValidator._type;
-
-function applyOperator(
-  q: any,
-  key: WorkspaceMemberFilterKey,
-  operator: (typeof operatorValidator)["_type"],
-  value: unknown
-) {
+function applyOperator(q: any, key: string, operator: string, value: unknown) {
   const indexName = `by_${key}` as const;
   switch (operator) {
     case "eq":
@@ -39,7 +33,7 @@ function applyOperator(
     case "lte":
       return q.withIndex(indexName, (idx: any) => idx.lte(key as any, value));
     default:
-      throw new Error(`Unsupported operator: ${operator as string}`);
+      throw new Error(`Unsupported operator: ${operator}`);
   }
 }
 
@@ -70,7 +64,7 @@ export const findMany = query({
         key: workspaceMemberFilterKeyValidator,
         value: v.any(),
         operator: operatorValidator,
-      })
+      }),
     ),
     limit: v.optional(v.number()),
     sortDirection: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
@@ -99,7 +93,7 @@ export const paginatedList = query({
         key: workspaceMemberFilterKeyValidator,
         value: v.any(),
         operator: operatorValidator,
-      })
+      }),
     ),
     sortDirection: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
   },
@@ -119,3 +113,12 @@ export const paginatedList = query({
   },
 });
 
+export const findManyByUserId = query({
+  args: { userId: v.string() },
+  handler: async (ctx, { userId }) => {
+    return ctx.db
+      .query("workspace_members")
+      .withIndex("by_user_id", (q) => q.eq("user_id", userId as Id<"users">))
+      .collect();
+  },
+});

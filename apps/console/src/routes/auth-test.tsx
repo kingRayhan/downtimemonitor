@@ -1,4 +1,5 @@
 import { useAppSession } from "@/providers/AuthProvider"
+import { useWorkspace } from "@/providers/WorkspaceProvider"
 import { createFileRoute } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/auth-test")({
@@ -7,5 +8,10 @@ export const Route = createFileRoute("/auth-test")({
 
 function RouteComponent() {
   const { loading, user } = useAppSession()
-  return <pre>{JSON.stringify({ loading, user }, null, 2)}</pre>
+  const { workspaces, loading: workspaceLoading } = useWorkspace()
+  return (
+    <pre>
+      {JSON.stringify({ loading, user, workspaces, workspaceLoading }, null, 2)}
+    </pre>
+  )
 }

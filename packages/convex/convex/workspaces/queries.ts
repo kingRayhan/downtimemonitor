@@ -1,13 +1,14 @@
 import { paginationOptsValidator } from "convex/server";
 import { query } from "../_generated/server";
 import { v } from "convex/values";
+import { Doc } from "../_generated/dataModel";
 
 const operatorValidator = v.union(
   v.literal("eq"),
   v.literal("gt"),
   v.literal("gte"),
   v.literal("lt"),
-  v.literal("lte")
+  v.literal("lte"),
 );
 
 const workspaceFilterKeyValidator = v.union(
@@ -15,15 +16,10 @@ const workspaceFilterKeyValidator = v.union(
   v.literal("created_by_user_id"),
   v.literal("created_at"),
   v.literal("updated_at"),
-  v.literal("deleted_at")
+  v.literal("deleted_at"),
 );
 
-function applyOperator(
-  q: any,
-  key: string,
-  operator: string,
-  value: unknown
-) {
+function applyOperator(q: any, key: string, operator: string, value: unknown) {
   const indexName = `by_${key}` as const;
   switch (operator) {
     case "eq":
@@ -68,7 +64,7 @@ export const findMany = query({
         key: workspaceFilterKeyValidator,
         value: v.any(),
         operator: operatorValidator,
-      })
+      }),
     ),
     limit: v.optional(v.number()),
     sortDirection: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
@@ -76,7 +72,10 @@ export const findMany = query({
   handler: async (ctx, { where, limit, sortDirection }) => {
     const direction = sortDirection ?? "desc";
     if (!where) {
-      return ctx.db.query("workspaces").order(direction).take(limit ?? 10);
+      return ctx.db
+        .query("workspaces")
+        .order(direction)
+        .take(limit ?? 10);
     }
     const { key, value, operator } = where;
     const base = ctx.db.query("workspaces");
@@ -94,7 +93,7 @@ export const paginatedList = query({
         key: workspaceFilterKeyValidator,
         value: v.any(),
         operator: operatorValidator,
-      })
+      }),
     ),
     sortDirection: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
   },
@@ -111,39 +110,13 @@ export const paginatedList = query({
   },
 });
 
-/**
- * List workspaces the given Clerk user is a member of (for switcher dropdown).
- */
-export const listForClerkUser = query({
-  args: { clerk_user_id: v.string() },
-  handler: async (ctx, { clerk_user_id }) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_user_id", (q) =>
-        q.eq("clerk_user_id", clerk_user_id)
-      )
-      .first();
-    if (!user) return [];
-
-    const memberships = await ctx.db
-      .query("workspace_members")
-      .withIndex("by_user_id", (q) => q.eq("user_id", user._id))
-      .collect();
-
-    const result: { id: (typeof memberships)[0]["workspace_id"]; slug: string; name: string; role: string }[] = [];
-    for (const m of memberships) {
-      if (m.deleted_at) continue;
-      const ws = await ctx.db.get(m.workspace_id);
-      if (ws && !ws.deleted_at) {
-        result.push({
-          id: ws._id,
-          slug: ws.slug,
-          name: ws.name,
-          role: m.role,
-        });
-      }
-    }
-    return result;
+// find by ids
+export const findByIds = query({
+  args: { ids: v.array(v.id("workspaces")) },
+  handler: async (ctx, args) => {
+    const docs = await Promise.all(
+      args.ids.map((id) => ctx.db.get("workspaces", id)),
+    );
+    return docs.filter((doc) => doc !== null) as Doc<"workspaces">[];
   },
 });
-
