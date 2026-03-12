@@ -1,12 +1,12 @@
-import type { ConsolePageId } from '@/config/console-pages';
-import { consolePages } from '@/config/console-pages';
+import type { ConsolePageId } from "@/config/console-pages"
+import { consolePages } from "@/config/console-pages"
 
 interface ConsolePageProps {
-  pageId: ConsolePageId;
+  pageId: ConsolePageId
 }
 
 export function ConsolePage({ pageId }: ConsolePageProps) {
-  const page = consolePages[pageId];
+  const page = consolePages[pageId]
 
   return (
     <div className="space-y-6">
@@ -40,6 +40,5 @@ export function ConsolePage({ pageId }: ConsolePageProps) {
         ))}
       </div>
     </div>
-  );
+  )
 }
-

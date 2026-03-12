@@ -14,7 +14,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceIdRouteImport } from './routes/$workspaceId'
 import { Route as WorkspaceIdStatusPagesRouteImport } from './routes/$workspaceId/status-pages'
 import { Route as WorkspaceIdSettingsRouteImport } from './routes/$workspaceId/settings'
-import { Route as WorkspaceIdMonitorsRouteImport } from './routes/$workspaceId/monitors'
 import { Route as WorkspaceIdLogsRouteImport } from './routes/$workspaceId/logs'
 import { Route as WorkspaceIdIncidentsRouteImport } from './routes/$workspaceId/incidents'
 import { Route as WorkspaceIdAuthTestRouteImport } from './routes/$workspaceId/auth-test'
@@ -23,6 +22,9 @@ import { Route as WorkspaceIdMonitorsMonitorIdRouteImport } from './routes/$work
 
 const IndexLazyRouteImport = createFileRoute('/')()
 const WorkspaceIdIndexLazyRouteImport = createFileRoute('/$workspaceId/')()
+const WorkspaceIdMonitorsIndexLazyRouteImport = createFileRoute(
+  '/$workspaceId/monitors/',
+)()
 
 const WorkspaceIdRoute = WorkspaceIdRouteImport.update({
   id: '/$workspaceId',
@@ -53,11 +55,6 @@ const WorkspaceIdSettingsRoute = WorkspaceIdSettingsRouteImport.update({
 } as any).lazy(() =>
   import('./routes/$workspaceId/settings.lazy').then((d) => d.Route),
 )
-const WorkspaceIdMonitorsRoute = WorkspaceIdMonitorsRouteImport.update({
-  id: '/monitors',
-  path: '/monitors',
-  getParentRoute: () => WorkspaceIdRoute,
-} as any)
 const WorkspaceIdLogsRoute = WorkspaceIdLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
@@ -78,11 +75,19 @@ const WorkspaceIdAlertsRoute = WorkspaceIdAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => WorkspaceIdRoute,
 } as any)
+const WorkspaceIdMonitorsIndexLazyRoute =
+  WorkspaceIdMonitorsIndexLazyRouteImport.update({
+    id: '/monitors/',
+    path: '/monitors/',
+    getParentRoute: () => WorkspaceIdRoute,
+  } as any).lazy(() =>
+    import('./routes/$workspaceId/monitors/index.lazy').then((d) => d.Route),
+  )
 const WorkspaceIdMonitorsMonitorIdRoute =
   WorkspaceIdMonitorsMonitorIdRouteImport.update({
-    id: '/$monitorId',
-    path: '/$monitorId',
-    getParentRoute: () => WorkspaceIdMonitorsRoute,
+    id: '/monitors/$monitorId',
+    path: '/monitors/$monitorId',
+    getParentRoute: () => WorkspaceIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -92,11 +97,11 @@ export interface FileRoutesByFullPath {
   '/$workspaceId/auth-test': typeof WorkspaceIdAuthTestRoute
   '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
-  '/$workspaceId/monitors': typeof WorkspaceIdMonitorsRouteWithChildren
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
   '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
   '/$workspaceId/': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
+  '/$workspaceId/monitors/': typeof WorkspaceIdMonitorsIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
@@ -104,11 +109,11 @@ export interface FileRoutesByTo {
   '/$workspaceId/auth-test': typeof WorkspaceIdAuthTestRoute
   '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
-  '/$workspaceId/monitors': typeof WorkspaceIdMonitorsRouteWithChildren
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
   '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
   '/$workspaceId': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
+  '/$workspaceId/monitors': typeof WorkspaceIdMonitorsIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,11 +123,11 @@ export interface FileRoutesById {
   '/$workspaceId/auth-test': typeof WorkspaceIdAuthTestRoute
   '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
-  '/$workspaceId/monitors': typeof WorkspaceIdMonitorsRouteWithChildren
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
   '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
   '/$workspaceId/': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
+  '/$workspaceId/monitors/': typeof WorkspaceIdMonitorsIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -133,11 +138,11 @@ export interface FileRouteTypes {
     | '/$workspaceId/auth-test'
     | '/$workspaceId/incidents'
     | '/$workspaceId/logs'
-    | '/$workspaceId/monitors'
     | '/$workspaceId/settings'
     | '/$workspaceId/status-pages'
     | '/$workspaceId/'
     | '/$workspaceId/monitors/$monitorId'
+    | '/$workspaceId/monitors/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -145,11 +150,11 @@ export interface FileRouteTypes {
     | '/$workspaceId/auth-test'
     | '/$workspaceId/incidents'
     | '/$workspaceId/logs'
-    | '/$workspaceId/monitors'
     | '/$workspaceId/settings'
     | '/$workspaceId/status-pages'
     | '/$workspaceId'
     | '/$workspaceId/monitors/$monitorId'
+    | '/$workspaceId/monitors'
   id:
     | '__root__'
     | '/'
@@ -158,11 +163,11 @@ export interface FileRouteTypes {
     | '/$workspaceId/auth-test'
     | '/$workspaceId/incidents'
     | '/$workspaceId/logs'
-    | '/$workspaceId/monitors'
     | '/$workspaceId/settings'
     | '/$workspaceId/status-pages'
     | '/$workspaceId/'
     | '/$workspaceId/monitors/$monitorId'
+    | '/$workspaceId/monitors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -207,13 +212,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceIdSettingsRouteImport
       parentRoute: typeof WorkspaceIdRoute
     }
-    '/$workspaceId/monitors': {
-      id: '/$workspaceId/monitors'
-      path: '/monitors'
-      fullPath: '/$workspaceId/monitors'
-      preLoaderRoute: typeof WorkspaceIdMonitorsRouteImport
-      parentRoute: typeof WorkspaceIdRoute
-    }
     '/$workspaceId/logs': {
       id: '/$workspaceId/logs'
       path: '/logs'
@@ -242,36 +240,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceIdAlertsRouteImport
       parentRoute: typeof WorkspaceIdRoute
     }
+    '/$workspaceId/monitors/': {
+      id: '/$workspaceId/monitors/'
+      path: '/monitors'
+      fullPath: '/$workspaceId/monitors/'
+      preLoaderRoute: typeof WorkspaceIdMonitorsIndexLazyRouteImport
+      parentRoute: typeof WorkspaceIdRoute
+    }
     '/$workspaceId/monitors/$monitorId': {
       id: '/$workspaceId/monitors/$monitorId'
-      path: '/$monitorId'
+      path: '/monitors/$monitorId'
       fullPath: '/$workspaceId/monitors/$monitorId'
       preLoaderRoute: typeof WorkspaceIdMonitorsMonitorIdRouteImport
-      parentRoute: typeof WorkspaceIdMonitorsRoute
+      parentRoute: typeof WorkspaceIdRoute
     }
   }
 }
-
-interface WorkspaceIdMonitorsRouteChildren {
-  WorkspaceIdMonitorsMonitorIdRoute: typeof WorkspaceIdMonitorsMonitorIdRoute
-}
-
-const WorkspaceIdMonitorsRouteChildren: WorkspaceIdMonitorsRouteChildren = {
-  WorkspaceIdMonitorsMonitorIdRoute: WorkspaceIdMonitorsMonitorIdRoute,
-}
-
-const WorkspaceIdMonitorsRouteWithChildren =
-  WorkspaceIdMonitorsRoute._addFileChildren(WorkspaceIdMonitorsRouteChildren)
 
 interface WorkspaceIdRouteChildren {
   WorkspaceIdAlertsRoute: typeof WorkspaceIdAlertsRoute
   WorkspaceIdAuthTestRoute: typeof WorkspaceIdAuthTestRoute
   WorkspaceIdIncidentsRoute: typeof WorkspaceIdIncidentsRoute
   WorkspaceIdLogsRoute: typeof WorkspaceIdLogsRoute
-  WorkspaceIdMonitorsRoute: typeof WorkspaceIdMonitorsRouteWithChildren
   WorkspaceIdSettingsRoute: typeof WorkspaceIdSettingsRoute
   WorkspaceIdStatusPagesRoute: typeof WorkspaceIdStatusPagesRoute
   WorkspaceIdIndexLazyRoute: typeof WorkspaceIdIndexLazyRoute
+  WorkspaceIdMonitorsMonitorIdRoute: typeof WorkspaceIdMonitorsMonitorIdRoute
+  WorkspaceIdMonitorsIndexLazyRoute: typeof WorkspaceIdMonitorsIndexLazyRoute
 }
 
 const WorkspaceIdRouteChildren: WorkspaceIdRouteChildren = {
@@ -279,10 +274,11 @@ const WorkspaceIdRouteChildren: WorkspaceIdRouteChildren = {
   WorkspaceIdAuthTestRoute: WorkspaceIdAuthTestRoute,
   WorkspaceIdIncidentsRoute: WorkspaceIdIncidentsRoute,
   WorkspaceIdLogsRoute: WorkspaceIdLogsRoute,
-  WorkspaceIdMonitorsRoute: WorkspaceIdMonitorsRouteWithChildren,
   WorkspaceIdSettingsRoute: WorkspaceIdSettingsRoute,
   WorkspaceIdStatusPagesRoute: WorkspaceIdStatusPagesRoute,
   WorkspaceIdIndexLazyRoute: WorkspaceIdIndexLazyRoute,
+  WorkspaceIdMonitorsMonitorIdRoute: WorkspaceIdMonitorsMonitorIdRoute,
+  WorkspaceIdMonitorsIndexLazyRoute: WorkspaceIdMonitorsIndexLazyRoute,
 }
 
 const WorkspaceIdRouteWithChildren = WorkspaceIdRoute._addFileChildren(
