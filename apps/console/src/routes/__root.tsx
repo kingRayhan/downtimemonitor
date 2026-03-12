@@ -1,4 +1,3 @@
-import AppShield from "@/components/app-shield"
 import { Outlet, createRootRoute } from "@tanstack/react-router"
 
 export const Route = createRootRoute({
@@ -6,9 +5,5 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
-  return (
-    <AppShield>
-      <Outlet />
-    </AppShield>
-  )
+  return <Outlet />
 }

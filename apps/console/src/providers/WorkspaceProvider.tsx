@@ -36,9 +36,6 @@ const WorkspaceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
       : "skip"
   )
 
-  const loading =
-    !!user && (!memberships || (memberships.length > 0 && !workspaces))
-
   const myWorkspaces =
     workspaces?.map((ws) => {
       const membership = memberships?.find((m) => m.workspace_id === ws._id)
@@ -50,7 +47,9 @@ const WorkspaceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     }) ?? []
 
   return (
-    <WorkspaceContext.Provider value={{ workspaces: myWorkspaces, loading }}>
+    <WorkspaceContext.Provider
+      value={{ workspaces: myWorkspaces, loading: !!!workspaces }}
+    >
       {children}
     </WorkspaceContext.Provider>
   )

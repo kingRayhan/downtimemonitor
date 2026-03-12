@@ -1,7 +1,7 @@
 import { ConsolePage } from '@/components/console-page';
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/monitors')({
-  component: () => <ConsolePage pageId="monitors" />,
+export const Route = createFileRoute('/$workspaceId/alerts')({
+  component: () => <ConsolePage pageId="alerts" />,
 });
 

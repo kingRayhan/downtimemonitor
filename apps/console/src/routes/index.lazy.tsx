@@ -1,4 +1,4 @@
-import { ConsolePage } from "@/components/console-page"
+import { useWorkspace } from "@/providers/WorkspaceProvider"
 import { createLazyFileRoute } from "@tanstack/react-router"
 
 export const Route = createLazyFileRoute("/")({
@@ -6,5 +6,14 @@ export const Route = createLazyFileRoute("/")({
 })
 
 function RouteComponent() {
-  return <ConsolePage pageId="dashboard" />
+  const { workspaces, loading: workspaceLoading } = useWorkspace()
+  if (workspaceLoading) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <div>
+      <pre>{JSON.stringify({ workspaces, workspaceLoading }, null, 2)}</pre>
+    </div>
+  )
 }

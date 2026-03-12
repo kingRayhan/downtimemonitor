@@ -2,7 +2,7 @@ import { useAppSession } from "@/providers/AuthProvider"
 import { useWorkspace } from "@/providers/WorkspaceProvider"
 import { createFileRoute } from "@tanstack/react-router"
 
-export const Route = createFileRoute("/auth-test")({
+export const Route = createFileRoute("/$workspaceId/auth-test")({
   component: RouteComponent,
 })
 
