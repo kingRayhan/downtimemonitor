@@ -38,13 +38,13 @@ export function OrgSwitcher() {
 
   // If there is no active organization once loading settles, send the user
   // to the organization picker page.
-  useEffect(() => {
-    if (!isLoading && !activeOrganization) {
-      navigate({ to: "/organizations/pick" })
-    }
-  }, [isLoading, activeOrganization, navigate])
+  // useEffect(() => {
+  //   if (!isRefetchingActiveOrganization && !activeOrganization) {
+  //     navigate({ to: "/organizations/pick" })
+  //   }
+  // }, [isRefetchingActiveOrganization, activeOrganization, navigate])
 
-  if (isLoading || !activeOrganization) {
+  if (isLoading) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
@@ -70,12 +70,12 @@ export function OrgSwitcher() {
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <span className="text-sm font-semibold">
-                  {activeOrganization.name.charAt(0).toUpperCase()}
+                  {activeOrganization?.name.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {activeOrganization.name}
+                  {activeOrganization?.name}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
@@ -92,12 +92,16 @@ export function OrgSwitcher() {
                 Organizations
               </DropdownMenuLabel>
               {organizations?.map((org) => {
-                const isActive = org.id === activeOrganization.id
+                const isActive = org.id === activeOrganization?.id
                 return (
                   <DropdownMenuItem
                     key={org.id}
                     className="gap-2 p-2"
-                    onClick={() => navigate({ to: "/organizations/pick" })}
+                    onClick={() =>
+                      betterAuthClient.organization.setActive({
+                        organizationId: org.id,
+                      })
+                    }
                   >
                     <div className="flex size-6 items-center justify-center rounded-md border">
                       <span className="text-xs font-semibold">
