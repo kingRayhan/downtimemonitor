@@ -23,6 +23,9 @@ import { Route as AuthPathnameIndexRouteImport } from './routes/auth/$pathname/i
 import { Route as DashboardMonitorsMonitorIdRouteImport } from './routes/_dashboard/monitors.$monitorId'
 
 const DashboardIndexLazyRouteImport = createFileRoute('/_dashboard/')()
+const OrganizationsPickLazyRouteImport = createFileRoute(
+  '/organizations/pick',
+)()
 const OrganizationsCreateLazyRouteImport = createFileRoute(
   '/organizations/create',
 )()
@@ -45,6 +48,13 @@ const DashboardIndexLazyRoute = DashboardIndexLazyRouteImport.update({
   getParentRoute: () => DashboardRoute,
 } as any).lazy(() =>
   import('./routes/_dashboard/index.lazy').then((d) => d.Route),
+)
+const OrganizationsPickLazyRoute = OrganizationsPickLazyRouteImport.update({
+  id: '/pick',
+  path: '/pick',
+  getParentRoute: () => OrganizationsRoute,
+} as any).lazy(() =>
+  import('./routes/organizations/pick.lazy').then((d) => d.Route),
 )
 const OrganizationsCreateLazyRoute = OrganizationsCreateLazyRouteImport.update({
   id: '/create',
@@ -115,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
   '/organizations/create': typeof OrganizationsCreateLazyRoute
+  '/organizations/pick': typeof OrganizationsPickLazyRoute
   '/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname/': typeof AuthPathnameIndexRoute
   '/monitors/': typeof DashboardMonitorsIndexLazyRoute
@@ -128,6 +139,7 @@ export interface FileRoutesByTo {
   '/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
   '/organizations/create': typeof OrganizationsCreateLazyRoute
+  '/organizations/pick': typeof OrganizationsPickLazyRoute
   '/': typeof DashboardIndexLazyRoute
   '/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname': typeof AuthPathnameIndexRoute
@@ -144,6 +156,7 @@ export interface FileRoutesById {
   '/_dashboard/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
   '/organizations/create': typeof OrganizationsCreateLazyRoute
+  '/organizations/pick': typeof OrganizationsPickLazyRoute
   '/_dashboard/': typeof DashboardIndexLazyRoute
   '/_dashboard/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname/': typeof AuthPathnameIndexRoute
@@ -161,6 +174,7 @@ export interface FileRouteTypes {
     | '/status-pages'
     | '/account/settings'
     | '/organizations/create'
+    | '/organizations/pick'
     | '/monitors/$monitorId'
     | '/auth/$pathname/'
     | '/monitors/'
@@ -174,6 +188,7 @@ export interface FileRouteTypes {
     | '/status-pages'
     | '/account/settings'
     | '/organizations/create'
+    | '/organizations/pick'
     | '/'
     | '/monitors/$monitorId'
     | '/auth/$pathname'
@@ -189,6 +204,7 @@ export interface FileRouteTypes {
     | '/_dashboard/status-pages'
     | '/account/settings'
     | '/organizations/create'
+    | '/organizations/pick'
     | '/_dashboard/'
     | '/_dashboard/monitors/$monitorId'
     | '/auth/$pathname/'
@@ -224,6 +240,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof DashboardIndexLazyRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/organizations/pick': {
+      id: '/organizations/pick'
+      path: '/pick'
+      fullPath: '/organizations/pick'
+      preLoaderRoute: typeof OrganizationsPickLazyRouteImport
+      parentRoute: typeof OrganizationsRoute
     }
     '/organizations/create': {
       id: '/organizations/create'
@@ -326,10 +349,12 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 interface OrganizationsRouteChildren {
   OrganizationsCreateLazyRoute: typeof OrganizationsCreateLazyRoute
+  OrganizationsPickLazyRoute: typeof OrganizationsPickLazyRoute
 }
 
 const OrganizationsRouteChildren: OrganizationsRouteChildren = {
   OrganizationsCreateLazyRoute: OrganizationsCreateLazyRoute,
+  OrganizationsPickLazyRoute: OrganizationsPickLazyRoute,
 }
 
 const OrganizationsRouteWithChildren = OrganizationsRoute._addFileChildren(

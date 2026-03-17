@@ -1,100 +1,147 @@
-import { betterAuthClient } from "@/lib/auth.client"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { createLazyFileRoute, redirect } from "@tanstack/react-router"
+import { betterAuthClient } from "@/lib/auth.client"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { createLazyFileRoute, useRouter } from "@tanstack/react-router"
 import { useState } from "react"
+import { Controller, useForm } from "react-hook-form"
+import * as z from "zod"
+
+const formSchema = z.object({
+  name: z.string().min(5, "Title must be at least 5 characters."),
+  slug: z.string().max(64, "Slug must be at most 64 characters.").optional(),
+})
 
 export const Route = createLazyFileRoute("/organizations/create")({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const [name, setName] = useState("")
-  const [slug, setSlug] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    if (!name.trim()) {
-      setError("Name is required")
-      return
-    }
-    const finalSlug =
-      slug.trim() ||
-      name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+    },
+  })
 
-    setIsSubmitting(true)
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const orgClient: any = (betterAuthClient as any).organization
-      if (!orgClient?.create) {
-        throw new Error("Organization client is not available")
-      }
-      const { error: createError } = await orgClient.create({
-        name: name.trim(),
-        slug: finalSlug,
+      const { error } = await betterAuthClient.organization.create({
+        name: values.name.trim(),
+        slug: values.slug?.trim() || "",
       })
-      if (createError) {
-        throw new Error(createError.message ?? "Failed to create organization")
+
+      if (error) {
+        throw new Error(error.message ?? "Failed to create organization")
       }
-      // Optionally redirect to dashboard after creation
-      window.location.href = "/"
+
+      await router.navigate({ to: "/" })
     } catch (err) {
       console.error(err)
-      setError(
+      setServerError(
         err instanceof Error
           ? err.message
           : "Something went wrong. Please try again."
       )
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
   return (
-    <main className="container mx-auto flex grow flex-col items-center justify-center gap-6 p-4 md:p-6">
-      <div className="w-full max-w-md space-y-6">
-        <div className="space-y-1">
-          <h1 className="text-xl font-semibold">Create organization</h1>
-          <p className="text-sm text-muted-foreground">
+    <main className="container mx-auto flex grow flex-col items-center justify-center p-4 md:p-6">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Create organization</CardTitle>
+          <CardDescription>
             Organizations let you separate workspaces, members, and permissions.
-          </p>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Acme Inc."
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="acme-inc"
-            />
-            <p className="text-xs text-muted-foreground">
-              Used in URLs and APIs. Leave blank to generate from the name.
-            </p>
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create organization"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {serverError && (
+            <div className="mb-4 rounded-md bg-destructive/10 p-4 text-sm text-destructive">
+              {serverError}
+            </div>
+          )}
+
+          <form
+            id="org-create-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            noValidate
+          >
+            <FieldGroup>
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="org-name">Name</FieldLabel>
+                    <Input
+                      {...field}
+                      id="org-name"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Acme Inc."
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="slug"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="org-slug">Slug</FieldLabel>
+                    <Input
+                      {...field}
+                      id="org-slug"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="acme-inc"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={() => form.reset()}>
+            Reset
           </Button>
-        </form>
-      </div>
+          <Button
+            type="submit"
+            form="org-create-form"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting
+              ? "Creating..."
+              : "Create organization"}
+          </Button>
+        </CardFooter>
+      </Card>
     </main>
   )
 }

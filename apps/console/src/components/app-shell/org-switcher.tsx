@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronsUpDown, Loader2, Plus } from "lucide-react"
+import { useEffect, useMemo } from "react"
 
 import {
   DropdownMenu,
@@ -30,17 +31,20 @@ export function OrgSwitcher() {
     isRefetching: isRefetchingActiveOrganization,
   } = betterAuthClient.useActiveOrganization()
 
-  const isLoading = isRefetchingOrganizations || isRefetchingActiveOrganization
+  const isLoading = useMemo(
+    () => isRefetchingOrganizations || isRefetchingActiveOrganization,
+    [isRefetchingOrganizations, isRefetchingActiveOrganization]
+  )
 
-  const handleSelectOrg = async (orgId: string) => {
-    try {
-      await betterAuthClient.organization.setActive({ organizationId: orgId })
-    } catch (error) {
-      console.error(error)
+  // If there is no active organization once loading settles, send the user
+  // to the organization picker page.
+  useEffect(() => {
+    if (!isLoading && !activeOrganization) {
+      navigate({ to: "/organizations/pick" })
     }
-  }
+  }, [isLoading, activeOrganization, navigate])
 
-  if (isLoading) {
+  if (isLoading || !activeOrganization) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
@@ -55,79 +59,76 @@ export function OrgSwitcher() {
     )
   }
 
-  if (!organizations || organizations.length === 0 || !activeOrganization) {
-    navigate({ to: "/organizations/create" })
-    return null
-  }
-
   return (
-    <>
-      <pre>{JSON.stringify({ organizations }, null, 2)}</pre>
-
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-              >
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <span className="text-sm font-semibold">
-                    {activeOrganization.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">
-                    {activeOrganization.name}
-                  </span>
-                  {/* <span className="truncate text-xs text-muted-foreground">
-                  {activeOrganization.slug}
-                </span> */}
-                </div>
-                <ChevronsUpDown className="ml-auto" />
-              </SidebarMenuButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-              align="start"
-              side={isMobile ? "bottom" : "right"}
-              sideOffset={4}
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Organizations
-                </DropdownMenuLabel>
-                {organizations.map((org) => {
-                  return (
-                    <DropdownMenuItem
-                      key={org.id}
-                      onClick={() => handleSelectOrg(org.id)}
-                      className="gap-2 p-2"
-                    >
-                      <div className="flex size-6 items-center justify-center rounded-md border">
-                        <span className="text-xs font-semibold">
-                          {org.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <span className="flex-1 truncate">{org.name}</span>
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="gap-2 p-2">
-                <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                  <Plus className="size-4" />
-                </div>
-                <div className="font-medium text-muted-foreground">
-                  Add team
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <span className="text-sm font-semibold">
+                  {activeOrganization.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">
+                  {activeOrganization.name}
+                </span>
+              </div>
+              <ChevronsUpDown className="ml-auto" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            align="start"
+            side={isMobile ? "bottom" : "right"}
+            sideOffset={4}
+          >
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-xs text-muted-foreground">
+                Organizations
+              </DropdownMenuLabel>
+              {organizations?.map((org) => {
+                const isActive = org.id === activeOrganization.id
+                return (
+                  <DropdownMenuItem
+                    key={org.id}
+                    className="gap-2 p-2"
+                    onClick={() => navigate({ to: "/organizations/pick" })}
+                  >
+                    <div className="flex size-6 items-center justify-center rounded-md border">
+                      <span className="text-xs font-semibold">
+                        {org.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="flex-1 truncate">{org.name}</span>
+                    {isActive && (
+                      <span className="text-xs text-muted-foreground">
+                        Active
+                      </span>
+                    )}
+                  </DropdownMenuItem>
+                )
+              })}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="gap-2 p-2"
+              onClick={() => navigate({ to: "/organizations/create" })}
+            >
+              <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                <Plus className="size-4" />
+              </div>
+              <div className="font-medium text-muted-foreground">
+                Add organization
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   )
 }
