@@ -8,6 +8,13 @@
       "when": 1773768223785,
       "tag": "0000_blushing_madrox",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773774617422,
+      "tag": "0001_sparkling_red_ghost",
+      "breakpoints": true
     }
   ]
 }
