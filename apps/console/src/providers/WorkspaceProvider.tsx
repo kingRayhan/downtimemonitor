@@ -1,7 +1,4 @@
-import { api } from "@repo/convex"
-import { useQuery } from "convex/react"
 import React from "react"
-import { useAppSession } from "./AuthProvider"
 
 // Workspace context
 
@@ -20,35 +17,11 @@ const WorkspaceContext = React.createContext<WorkspaceContextType>({
 })
 
 const WorkspaceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { user } = useAppSession()
-
-  const memberships = useQuery(
-    api.workspaceMembers.queries.findManyByUserId,
-    user?._id ? { userId: user?._id } : "skip"
-  )
-
-  const workspaces = useQuery(
-    api.workspaces.queries.findByIds,
-    memberships
-      ? {
-          ids: memberships.map((membership) => membership.workspace_id),
-        }
-      : "skip"
-  )
-
-  const myWorkspaces =
-    workspaces?.map((ws) => {
-      const membership = memberships?.find((m) => m.workspace_id === ws._id)
-      return {
-        _id: ws._id,
-        name: ws.name,
-        role: membership?.role ?? "member",
-      }
-    }) ?? []
+  const myWorkspaces: WorkspaceContextType["workspaces"] = []
 
   return (
     <WorkspaceContext.Provider
-      value={{ workspaces: myWorkspaces, loading: !!!workspaces }}
+      value={{ workspaces: myWorkspaces, loading: false }}
     >
       {children}
     </WorkspaceContext.Provider>

@@ -1,25 +1,12 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useUser } from "@clerk/react"
-import { api } from "@repo/convex"
-import { useQuery } from "convex/react"
-import { ChevronDownIcon, PlusIcon } from "lucide-react"
+import { useWorkspace } from "@/providers/WorkspaceProvider"
 
 export function WorkspaceSwitcher() {
-  const { user } = useUser()
-  // const clerkUserId = user?.id ?? ""
-  // useQuery(api.workspaces.queries.listForClerkUser, {
-  //   clerk_user_id: clerkUserId,
-  // })
+  const { workspaces } = useWorkspace()
 
-  return <div>WorkspaceSwitcher</div>
+  if (workspaces.length === 0) return null
+  return <div className="text-sm text-muted-foreground">{workspaces[0]?.name}</div>
 
   // return (
   //   <DropdownMenu>

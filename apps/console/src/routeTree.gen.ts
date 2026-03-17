@@ -16,7 +16,6 @@ import { Route as WorkspaceIdStatusPagesRouteImport } from './routes/$workspaceI
 import { Route as WorkspaceIdSettingsRouteImport } from './routes/$workspaceId/settings'
 import { Route as WorkspaceIdLogsRouteImport } from './routes/$workspaceId/logs'
 import { Route as WorkspaceIdIncidentsRouteImport } from './routes/$workspaceId/incidents'
-import { Route as WorkspaceIdAuthTestRouteImport } from './routes/$workspaceId/auth-test'
 import { Route as WorkspaceIdAlertsRouteImport } from './routes/$workspaceId/alerts'
 import { Route as WorkspaceIdMonitorsMonitorIdRouteImport } from './routes/$workspaceId/monitors.$monitorId'
 
@@ -65,11 +64,6 @@ const WorkspaceIdIncidentsRoute = WorkspaceIdIncidentsRouteImport.update({
   path: '/incidents',
   getParentRoute: () => WorkspaceIdRoute,
 } as any)
-const WorkspaceIdAuthTestRoute = WorkspaceIdAuthTestRouteImport.update({
-  id: '/auth-test',
-  path: '/auth-test',
-  getParentRoute: () => WorkspaceIdRoute,
-} as any)
 const WorkspaceIdAlertsRoute = WorkspaceIdAlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
@@ -94,7 +88,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/$workspaceId': typeof WorkspaceIdRouteWithChildren
   '/$workspaceId/alerts': typeof WorkspaceIdAlertsRoute
-  '/$workspaceId/auth-test': typeof WorkspaceIdAuthTestRoute
   '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
@@ -106,7 +99,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/$workspaceId/alerts': typeof WorkspaceIdAlertsRoute
-  '/$workspaceId/auth-test': typeof WorkspaceIdAuthTestRoute
   '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
@@ -120,7 +112,6 @@ export interface FileRoutesById {
   '/': typeof IndexLazyRoute
   '/$workspaceId': typeof WorkspaceIdRouteWithChildren
   '/$workspaceId/alerts': typeof WorkspaceIdAlertsRoute
-  '/$workspaceId/auth-test': typeof WorkspaceIdAuthTestRoute
   '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
@@ -135,7 +126,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$workspaceId'
     | '/$workspaceId/alerts'
-    | '/$workspaceId/auth-test'
     | '/$workspaceId/incidents'
     | '/$workspaceId/logs'
     | '/$workspaceId/settings'
@@ -147,7 +137,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$workspaceId/alerts'
-    | '/$workspaceId/auth-test'
     | '/$workspaceId/incidents'
     | '/$workspaceId/logs'
     | '/$workspaceId/settings'
@@ -160,7 +149,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$workspaceId'
     | '/$workspaceId/alerts'
-    | '/$workspaceId/auth-test'
     | '/$workspaceId/incidents'
     | '/$workspaceId/logs'
     | '/$workspaceId/settings'
@@ -226,13 +214,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceIdIncidentsRouteImport
       parentRoute: typeof WorkspaceIdRoute
     }
-    '/$workspaceId/auth-test': {
-      id: '/$workspaceId/auth-test'
-      path: '/auth-test'
-      fullPath: '/$workspaceId/auth-test'
-      preLoaderRoute: typeof WorkspaceIdAuthTestRouteImport
-      parentRoute: typeof WorkspaceIdRoute
-    }
     '/$workspaceId/alerts': {
       id: '/$workspaceId/alerts'
       path: '/alerts'
@@ -259,7 +240,6 @@ declare module '@tanstack/react-router' {
 
 interface WorkspaceIdRouteChildren {
   WorkspaceIdAlertsRoute: typeof WorkspaceIdAlertsRoute
-  WorkspaceIdAuthTestRoute: typeof WorkspaceIdAuthTestRoute
   WorkspaceIdIncidentsRoute: typeof WorkspaceIdIncidentsRoute
   WorkspaceIdLogsRoute: typeof WorkspaceIdLogsRoute
   WorkspaceIdSettingsRoute: typeof WorkspaceIdSettingsRoute
@@ -271,7 +251,6 @@ interface WorkspaceIdRouteChildren {
 
 const WorkspaceIdRouteChildren: WorkspaceIdRouteChildren = {
   WorkspaceIdAlertsRoute: WorkspaceIdAlertsRoute,
-  WorkspaceIdAuthTestRoute: WorkspaceIdAuthTestRoute,
   WorkspaceIdIncidentsRoute: WorkspaceIdIncidentsRoute,
   WorkspaceIdLogsRoute: WorkspaceIdLogsRoute,
   WorkspaceIdSettingsRoute: WorkspaceIdSettingsRoute,
