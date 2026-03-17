@@ -1,11 +1,11 @@
 import { apiKey } from "@better-auth/api-key";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { createAuthMiddleware } from "better-auth/api";
 import { organization } from "better-auth/plugins";
 import { db } from "../database/db";
-import { APP_ENV } from "./env";
-import { createAuthEndpoint, createAuthMiddleware } from "better-auth/api";
 import { memberTable, organizationTable } from "../database/schema";
+import { APP_ENV } from "./env";
 
 export const betterAuthServer = betterAuth({
   database: drizzleAdapter(db, { provider: "pg" }),
@@ -13,6 +13,13 @@ export const betterAuthServer = betterAuth({
   baseURL: APP_ENV.API_BASE_URL,
   basePath: "/auth",
   emailAndPassword: { enabled: true, autoSignIn: true },
+  socialProviders: {
+    github: {
+      enabled: true,
+      clientId: "github_client_id",
+      clientSecret: "github_client_secret",
+    },
+  },
   plugins: [apiKey(), organization()],
   trustedOrigins: APP_ENV.AUTH_CLIENT_URLS.split(","),
   hooks: {
@@ -49,6 +56,12 @@ export const betterAuthServer = betterAuth({
         if (!memberId[0].id) {
           throw new Error("Member ID is required");
         }
+
+        // set the organization id and member id in the session
+        await betterAuthServer.api.setActiveOrganization({
+          body: { organizationId: orgId[0].id },
+          headers: ctx.request?.headers ?? {},
+        });
       }
     }),
   },
