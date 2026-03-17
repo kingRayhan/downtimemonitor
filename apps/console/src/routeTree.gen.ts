@@ -11,6 +11,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OrganizationsRouteImport } from './routes/organizations'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as AccountSettingsRouteImport } from './routes/account/settings'
 import { Route as DashboardStatusPagesRouteImport } from './routes/_dashboard/status-pages'
@@ -22,10 +23,18 @@ import { Route as AuthPathnameIndexRouteImport } from './routes/auth/$pathname/i
 import { Route as DashboardMonitorsMonitorIdRouteImport } from './routes/_dashboard/monitors.$monitorId'
 
 const DashboardIndexLazyRouteImport = createFileRoute('/_dashboard/')()
+const OrganizationsCreateLazyRouteImport = createFileRoute(
+  '/organizations/create',
+)()
 const DashboardMonitorsIndexLazyRouteImport = createFileRoute(
   '/_dashboard/monitors/',
 )()
 
+const OrganizationsRoute = OrganizationsRouteImport.update({
+  id: '/organizations',
+  path: '/organizations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/_dashboard',
   getParentRoute: () => rootRouteImport,
@@ -36,6 +45,13 @@ const DashboardIndexLazyRoute = DashboardIndexLazyRouteImport.update({
   getParentRoute: () => DashboardRoute,
 } as any).lazy(() =>
   import('./routes/_dashboard/index.lazy').then((d) => d.Route),
+)
+const OrganizationsCreateLazyRoute = OrganizationsCreateLazyRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => OrganizationsRoute,
+} as any).lazy(() =>
+  import('./routes/organizations/create.lazy').then((d) => d.Route),
 )
 const AccountSettingsRoute = AccountSettingsRouteImport.update({
   id: '/account/settings',
@@ -91,23 +107,27 @@ const DashboardMonitorsMonitorIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof DashboardIndexLazyRoute
+  '/organizations': typeof OrganizationsRouteWithChildren
   '/alerts': typeof DashboardAlertsRoute
   '/incidents': typeof DashboardIncidentsRoute
   '/logs': typeof DashboardLogsRoute
   '/settings': typeof DashboardSettingsRoute
   '/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/organizations/create': typeof OrganizationsCreateLazyRoute
   '/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname/': typeof AuthPathnameIndexRoute
   '/monitors/': typeof DashboardMonitorsIndexLazyRoute
 }
 export interface FileRoutesByTo {
+  '/organizations': typeof OrganizationsRouteWithChildren
   '/alerts': typeof DashboardAlertsRoute
   '/incidents': typeof DashboardIncidentsRoute
   '/logs': typeof DashboardLogsRoute
   '/settings': typeof DashboardSettingsRoute
   '/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/organizations/create': typeof OrganizationsCreateLazyRoute
   '/': typeof DashboardIndexLazyRoute
   '/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname': typeof AuthPathnameIndexRoute
@@ -116,12 +136,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_dashboard': typeof DashboardRouteWithChildren
+  '/organizations': typeof OrganizationsRouteWithChildren
   '/_dashboard/alerts': typeof DashboardAlertsRoute
   '/_dashboard/incidents': typeof DashboardIncidentsRoute
   '/_dashboard/logs': typeof DashboardLogsRoute
   '/_dashboard/settings': typeof DashboardSettingsRoute
   '/_dashboard/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/organizations/create': typeof OrganizationsCreateLazyRoute
   '/_dashboard/': typeof DashboardIndexLazyRoute
   '/_dashboard/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname/': typeof AuthPathnameIndexRoute
@@ -131,23 +153,27 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/organizations'
     | '/alerts'
     | '/incidents'
     | '/logs'
     | '/settings'
     | '/status-pages'
     | '/account/settings'
+    | '/organizations/create'
     | '/monitors/$monitorId'
     | '/auth/$pathname/'
     | '/monitors/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/organizations'
     | '/alerts'
     | '/incidents'
     | '/logs'
     | '/settings'
     | '/status-pages'
     | '/account/settings'
+    | '/organizations/create'
     | '/'
     | '/monitors/$monitorId'
     | '/auth/$pathname'
@@ -155,12 +181,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_dashboard'
+    | '/organizations'
     | '/_dashboard/alerts'
     | '/_dashboard/incidents'
     | '/_dashboard/logs'
     | '/_dashboard/settings'
     | '/_dashboard/status-pages'
     | '/account/settings'
+    | '/organizations/create'
     | '/_dashboard/'
     | '/_dashboard/monitors/$monitorId'
     | '/auth/$pathname/'
@@ -169,12 +197,20 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
+  OrganizationsRoute: typeof OrganizationsRouteWithChildren
   AccountSettingsRoute: typeof AccountSettingsRoute
   AuthPathnameIndexRoute: typeof AuthPathnameIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/organizations': {
+      id: '/organizations'
+      path: '/organizations'
+      fullPath: '/organizations'
+      preLoaderRoute: typeof OrganizationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_dashboard': {
       id: '/_dashboard'
       path: ''
@@ -188,6 +224,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof DashboardIndexLazyRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/organizations/create': {
+      id: '/organizations/create'
+      path: '/create'
+      fullPath: '/organizations/create'
+      preLoaderRoute: typeof OrganizationsCreateLazyRouteImport
+      parentRoute: typeof OrganizationsRoute
     }
     '/account/settings': {
       id: '/account/settings'
@@ -281,8 +324,21 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface OrganizationsRouteChildren {
+  OrganizationsCreateLazyRoute: typeof OrganizationsCreateLazyRoute
+}
+
+const OrganizationsRouteChildren: OrganizationsRouteChildren = {
+  OrganizationsCreateLazyRoute: OrganizationsCreateLazyRoute,
+}
+
+const OrganizationsRouteWithChildren = OrganizationsRoute._addFileChildren(
+  OrganizationsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
+  OrganizationsRoute: OrganizationsRouteWithChildren,
   AccountSettingsRoute: AccountSettingsRoute,
   AuthPathnameIndexRoute: AuthPathnameIndexRoute,
 }

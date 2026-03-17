@@ -1,7 +1,6 @@
 "use client"
 
 import { ChevronsUpDown, Loader2, Plus } from "lucide-react"
-import * as React from "react"
 
 import {
   DropdownMenu,
@@ -19,9 +18,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { betterAuthClient } from "@/lib/auth.client"
+import { useNavigate } from "@tanstack/react-router"
 
 export function OrgSwitcher() {
   const { isMobile } = useSidebar()
+  const navigate = useNavigate()
   const { data: organizations, isRefetching: isRefetchingOrganizations } =
     betterAuthClient.useListOrganizations()
   const {
@@ -55,71 +56,78 @@ export function OrgSwitcher() {
   }
 
   if (!organizations || organizations.length === 0 || !activeOrganization) {
+    navigate({ to: "/organizations/create" })
     return null
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <span className="text-sm font-semibold">
-                  {activeOrganization.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {activeOrganization.name}
-                </span>
-                {/* <span className="truncate text-xs text-muted-foreground">
+    <>
+      <pre>{JSON.stringify({ organizations }, null, 2)}</pre>
+
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              >
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <span className="text-sm font-semibold">
+                    {activeOrganization.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">
+                    {activeOrganization.name}
+                  </span>
+                  {/* <span className="truncate text-xs text-muted-foreground">
                   {activeOrganization.slug}
                 </span> */}
-              </div>
-              <ChevronsUpDown className="ml-auto" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
-          >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-xs text-muted-foreground">
-                Organizations
-              </DropdownMenuLabel>
-              {organizations.map((org) => {
-                return (
-                  <DropdownMenuItem
-                    key={org.id}
-                    onClick={() => handleSelectOrg(org.id)}
-                    className="gap-2 p-2"
-                  >
-                    <div className="flex size-6 items-center justify-center rounded-md border">
-                      <span className="text-xs font-semibold">
-                        {org.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <span className="flex-1 truncate">{org.name}</span>
-                  </DropdownMenuItem>
-                )
-              })}
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                <Plus className="size-4" />
-              </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+                </div>
+                <ChevronsUpDown className="ml-auto" />
+              </SidebarMenuButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+              align="start"
+              side={isMobile ? "bottom" : "right"}
+              sideOffset={4}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-xs text-muted-foreground">
+                  Organizations
+                </DropdownMenuLabel>
+                {organizations.map((org) => {
+                  return (
+                    <DropdownMenuItem
+                      key={org.id}
+                      onClick={() => handleSelectOrg(org.id)}
+                      className="gap-2 p-2"
+                    >
+                      <div className="flex size-6 items-center justify-center rounded-md border">
+                        <span className="text-xs font-semibold">
+                          {org.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <span className="flex-1 truncate">{org.name}</span>
+                    </DropdownMenuItem>
+                  )
+                })}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2 p-2">
+                <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                  <Plus className="size-4" />
+                </div>
+                <div className="font-medium text-muted-foreground">
+                  Add team
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </>
   )
 }
