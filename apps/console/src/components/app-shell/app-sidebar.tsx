@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import { NavMain } from "@/components/nav-main"
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +24,8 @@ import {
   SearchIcon,
   Settings2Icon,
 } from "lucide-react"
+import { NavMain } from "./nav-main"
+import { OrgSwitcher } from "./org-switcher"
 
 const data = {
   user: {
@@ -156,17 +157,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-              render={<a href="#" />}
-            >
-              <CommandIcon className="size-5!" />
-              <span className="text-base font-semibold">Acme Inc.</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <OrgSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

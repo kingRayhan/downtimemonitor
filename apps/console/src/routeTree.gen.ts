@@ -11,206 +11,183 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WorkspaceIdRouteImport } from './routes/$workspaceId'
+import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as AccountSettingsRouteImport } from './routes/account/settings'
-import { Route as WorkspaceIdStatusPagesRouteImport } from './routes/$workspaceId/status-pages'
-import { Route as WorkspaceIdSettingsRouteImport } from './routes/$workspaceId/settings'
-import { Route as WorkspaceIdLogsRouteImport } from './routes/$workspaceId/logs'
-import { Route as WorkspaceIdIncidentsRouteImport } from './routes/$workspaceId/incidents'
-import { Route as WorkspaceIdAlertsRouteImport } from './routes/$workspaceId/alerts'
+import { Route as DashboardStatusPagesRouteImport } from './routes/_dashboard/status-pages'
+import { Route as DashboardSettingsRouteImport } from './routes/_dashboard/settings'
+import { Route as DashboardLogsRouteImport } from './routes/_dashboard/logs'
+import { Route as DashboardIncidentsRouteImport } from './routes/_dashboard/incidents'
+import { Route as DashboardAlertsRouteImport } from './routes/_dashboard/alerts'
 import { Route as AuthPathnameIndexRouteImport } from './routes/auth/$pathname/index'
-import { Route as WorkspaceIdMonitorsMonitorIdRouteImport } from './routes/$workspaceId/monitors.$monitorId'
+import { Route as DashboardMonitorsMonitorIdRouteImport } from './routes/_dashboard/monitors.$monitorId'
 
-const IndexLazyRouteImport = createFileRoute('/')()
-const WorkspaceIdIndexLazyRouteImport = createFileRoute('/$workspaceId/')()
-const WorkspaceIdMonitorsIndexLazyRouteImport = createFileRoute(
-  '/$workspaceId/monitors/',
+const DashboardIndexLazyRouteImport = createFileRoute('/_dashboard/')()
+const DashboardMonitorsIndexLazyRouteImport = createFileRoute(
+  '/_dashboard/monitors/',
 )()
 
-const WorkspaceIdRoute = WorkspaceIdRouteImport.update({
-  id: '/$workspaceId',
-  path: '/$workspaceId',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/_dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexLazyRoute = IndexLazyRouteImport.update({
+const DashboardIndexLazyRoute = DashboardIndexLazyRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
-const WorkspaceIdIndexLazyRoute = WorkspaceIdIndexLazyRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => WorkspaceIdRoute,
+  getParentRoute: () => DashboardRoute,
 } as any).lazy(() =>
-  import('./routes/$workspaceId/index.lazy').then((d) => d.Route),
+  import('./routes/_dashboard/index.lazy').then((d) => d.Route),
 )
 const AccountSettingsRoute = AccountSettingsRouteImport.update({
   id: '/account/settings',
   path: '/account/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkspaceIdStatusPagesRoute = WorkspaceIdStatusPagesRouteImport.update({
+const DashboardStatusPagesRoute = DashboardStatusPagesRouteImport.update({
   id: '/status-pages',
   path: '/status-pages',
-  getParentRoute: () => WorkspaceIdRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const WorkspaceIdSettingsRoute = WorkspaceIdSettingsRouteImport.update({
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => WorkspaceIdRoute,
+  getParentRoute: () => DashboardRoute,
 } as any).lazy(() =>
-  import('./routes/$workspaceId/settings.lazy').then((d) => d.Route),
+  import('./routes/_dashboard/settings.lazy').then((d) => d.Route),
 )
-const WorkspaceIdLogsRoute = WorkspaceIdLogsRouteImport.update({
+const DashboardLogsRoute = DashboardLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
-  getParentRoute: () => WorkspaceIdRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const WorkspaceIdIncidentsRoute = WorkspaceIdIncidentsRouteImport.update({
+const DashboardIncidentsRoute = DashboardIncidentsRouteImport.update({
   id: '/incidents',
   path: '/incidents',
-  getParentRoute: () => WorkspaceIdRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const WorkspaceIdAlertsRoute = WorkspaceIdAlertsRouteImport.update({
+const DashboardAlertsRoute = DashboardAlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
-  getParentRoute: () => WorkspaceIdRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const WorkspaceIdMonitorsIndexLazyRoute =
-  WorkspaceIdMonitorsIndexLazyRouteImport.update({
+const DashboardMonitorsIndexLazyRoute =
+  DashboardMonitorsIndexLazyRouteImport.update({
     id: '/monitors/',
     path: '/monitors/',
-    getParentRoute: () => WorkspaceIdRoute,
+    getParentRoute: () => DashboardRoute,
   } as any).lazy(() =>
-    import('./routes/$workspaceId/monitors/index.lazy').then((d) => d.Route),
+    import('./routes/_dashboard/monitors/index.lazy').then((d) => d.Route),
   )
 const AuthPathnameIndexRoute = AuthPathnameIndexRouteImport.update({
   id: '/auth/$pathname/',
   path: '/auth/$pathname/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkspaceIdMonitorsMonitorIdRoute =
-  WorkspaceIdMonitorsMonitorIdRouteImport.update({
+const DashboardMonitorsMonitorIdRoute =
+  DashboardMonitorsMonitorIdRouteImport.update({
     id: '/monitors/$monitorId',
     path: '/monitors/$monitorId',
-    getParentRoute: () => WorkspaceIdRoute,
+    getParentRoute: () => DashboardRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
-  '/$workspaceId': typeof WorkspaceIdRouteWithChildren
-  '/$workspaceId/alerts': typeof WorkspaceIdAlertsRoute
-  '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
-  '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
-  '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
-  '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
+  '/': typeof DashboardIndexLazyRoute
+  '/alerts': typeof DashboardAlertsRoute
+  '/incidents': typeof DashboardIncidentsRoute
+  '/logs': typeof DashboardLogsRoute
+  '/settings': typeof DashboardSettingsRoute
+  '/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
-  '/$workspaceId/': typeof WorkspaceIdIndexLazyRoute
-  '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
+  '/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname/': typeof AuthPathnameIndexRoute
-  '/$workspaceId/monitors/': typeof WorkspaceIdMonitorsIndexLazyRoute
+  '/monitors/': typeof DashboardMonitorsIndexLazyRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
-  '/$workspaceId/alerts': typeof WorkspaceIdAlertsRoute
-  '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
-  '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
-  '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
-  '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
+  '/alerts': typeof DashboardAlertsRoute
+  '/incidents': typeof DashboardIncidentsRoute
+  '/logs': typeof DashboardLogsRoute
+  '/settings': typeof DashboardSettingsRoute
+  '/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
-  '/$workspaceId': typeof WorkspaceIdIndexLazyRoute
-  '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
+  '/': typeof DashboardIndexLazyRoute
+  '/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname': typeof AuthPathnameIndexRoute
-  '/$workspaceId/monitors': typeof WorkspaceIdMonitorsIndexLazyRoute
+  '/monitors': typeof DashboardMonitorsIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexLazyRoute
-  '/$workspaceId': typeof WorkspaceIdRouteWithChildren
-  '/$workspaceId/alerts': typeof WorkspaceIdAlertsRoute
-  '/$workspaceId/incidents': typeof WorkspaceIdIncidentsRoute
-  '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
-  '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
-  '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
+  '/_dashboard': typeof DashboardRouteWithChildren
+  '/_dashboard/alerts': typeof DashboardAlertsRoute
+  '/_dashboard/incidents': typeof DashboardIncidentsRoute
+  '/_dashboard/logs': typeof DashboardLogsRoute
+  '/_dashboard/settings': typeof DashboardSettingsRoute
+  '/_dashboard/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
-  '/$workspaceId/': typeof WorkspaceIdIndexLazyRoute
-  '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
+  '/_dashboard/': typeof DashboardIndexLazyRoute
+  '/_dashboard/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
   '/auth/$pathname/': typeof AuthPathnameIndexRoute
-  '/$workspaceId/monitors/': typeof WorkspaceIdMonitorsIndexLazyRoute
+  '/_dashboard/monitors/': typeof DashboardMonitorsIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/$workspaceId'
-    | '/$workspaceId/alerts'
-    | '/$workspaceId/incidents'
-    | '/$workspaceId/logs'
-    | '/$workspaceId/settings'
-    | '/$workspaceId/status-pages'
+    | '/alerts'
+    | '/incidents'
+    | '/logs'
+    | '/settings'
+    | '/status-pages'
     | '/account/settings'
-    | '/$workspaceId/'
-    | '/$workspaceId/monitors/$monitorId'
+    | '/monitors/$monitorId'
     | '/auth/$pathname/'
-    | '/$workspaceId/monitors/'
+    | '/monitors/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
-    | '/$workspaceId/alerts'
-    | '/$workspaceId/incidents'
-    | '/$workspaceId/logs'
-    | '/$workspaceId/settings'
-    | '/$workspaceId/status-pages'
+    | '/alerts'
+    | '/incidents'
+    | '/logs'
+    | '/settings'
+    | '/status-pages'
     | '/account/settings'
-    | '/$workspaceId'
-    | '/$workspaceId/monitors/$monitorId'
+    | '/'
+    | '/monitors/$monitorId'
     | '/auth/$pathname'
-    | '/$workspaceId/monitors'
+    | '/monitors'
   id:
     | '__root__'
-    | '/'
-    | '/$workspaceId'
-    | '/$workspaceId/alerts'
-    | '/$workspaceId/incidents'
-    | '/$workspaceId/logs'
-    | '/$workspaceId/settings'
-    | '/$workspaceId/status-pages'
+    | '/_dashboard'
+    | '/_dashboard/alerts'
+    | '/_dashboard/incidents'
+    | '/_dashboard/logs'
+    | '/_dashboard/settings'
+    | '/_dashboard/status-pages'
     | '/account/settings'
-    | '/$workspaceId/'
-    | '/$workspaceId/monitors/$monitorId'
+    | '/_dashboard/'
+    | '/_dashboard/monitors/$monitorId'
     | '/auth/$pathname/'
-    | '/$workspaceId/monitors/'
+    | '/_dashboard/monitors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
-  WorkspaceIdRoute: typeof WorkspaceIdRouteWithChildren
+  DashboardRoute: typeof DashboardRouteWithChildren
   AccountSettingsRoute: typeof AccountSettingsRoute
   AuthPathnameIndexRoute: typeof AuthPathnameIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/$workspaceId': {
-      id: '/$workspaceId'
-      path: '/$workspaceId'
-      fullPath: '/$workspaceId'
-      preLoaderRoute: typeof WorkspaceIdRouteImport
+    '/_dashboard': {
+      id: '/_dashboard'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_dashboard/': {
+      id: '/_dashboard/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/$workspaceId/': {
-      id: '/$workspaceId/'
-      path: '/'
-      fullPath: '/$workspaceId/'
-      preLoaderRoute: typeof WorkspaceIdIndexLazyRouteImport
-      parentRoute: typeof WorkspaceIdRoute
+      preLoaderRoute: typeof DashboardIndexLazyRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/account/settings': {
       id: '/account/settings'
@@ -219,47 +196,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$workspaceId/status-pages': {
-      id: '/$workspaceId/status-pages'
+    '/_dashboard/status-pages': {
+      id: '/_dashboard/status-pages'
       path: '/status-pages'
-      fullPath: '/$workspaceId/status-pages'
-      preLoaderRoute: typeof WorkspaceIdStatusPagesRouteImport
-      parentRoute: typeof WorkspaceIdRoute
+      fullPath: '/status-pages'
+      preLoaderRoute: typeof DashboardStatusPagesRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/$workspaceId/settings': {
-      id: '/$workspaceId/settings'
+    '/_dashboard/settings': {
+      id: '/_dashboard/settings'
       path: '/settings'
-      fullPath: '/$workspaceId/settings'
-      preLoaderRoute: typeof WorkspaceIdSettingsRouteImport
-      parentRoute: typeof WorkspaceIdRoute
+      fullPath: '/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/$workspaceId/logs': {
-      id: '/$workspaceId/logs'
+    '/_dashboard/logs': {
+      id: '/_dashboard/logs'
       path: '/logs'
-      fullPath: '/$workspaceId/logs'
-      preLoaderRoute: typeof WorkspaceIdLogsRouteImport
-      parentRoute: typeof WorkspaceIdRoute
+      fullPath: '/logs'
+      preLoaderRoute: typeof DashboardLogsRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/$workspaceId/incidents': {
-      id: '/$workspaceId/incidents'
+    '/_dashboard/incidents': {
+      id: '/_dashboard/incidents'
       path: '/incidents'
-      fullPath: '/$workspaceId/incidents'
-      preLoaderRoute: typeof WorkspaceIdIncidentsRouteImport
-      parentRoute: typeof WorkspaceIdRoute
+      fullPath: '/incidents'
+      preLoaderRoute: typeof DashboardIncidentsRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/$workspaceId/alerts': {
-      id: '/$workspaceId/alerts'
+    '/_dashboard/alerts': {
+      id: '/_dashboard/alerts'
       path: '/alerts'
-      fullPath: '/$workspaceId/alerts'
-      preLoaderRoute: typeof WorkspaceIdAlertsRouteImport
-      parentRoute: typeof WorkspaceIdRoute
+      fullPath: '/alerts'
+      preLoaderRoute: typeof DashboardAlertsRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/$workspaceId/monitors/': {
-      id: '/$workspaceId/monitors/'
+    '/_dashboard/monitors/': {
+      id: '/_dashboard/monitors/'
       path: '/monitors'
-      fullPath: '/$workspaceId/monitors/'
-      preLoaderRoute: typeof WorkspaceIdMonitorsIndexLazyRouteImport
-      parentRoute: typeof WorkspaceIdRoute
+      fullPath: '/monitors/'
+      preLoaderRoute: typeof DashboardMonitorsIndexLazyRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/auth/$pathname/': {
       id: '/auth/$pathname/'
@@ -268,45 +245,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthPathnameIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$workspaceId/monitors/$monitorId': {
-      id: '/$workspaceId/monitors/$monitorId'
+    '/_dashboard/monitors/$monitorId': {
+      id: '/_dashboard/monitors/$monitorId'
       path: '/monitors/$monitorId'
-      fullPath: '/$workspaceId/monitors/$monitorId'
-      preLoaderRoute: typeof WorkspaceIdMonitorsMonitorIdRouteImport
-      parentRoute: typeof WorkspaceIdRoute
+      fullPath: '/monitors/$monitorId'
+      preLoaderRoute: typeof DashboardMonitorsMonitorIdRouteImport
+      parentRoute: typeof DashboardRoute
     }
   }
 }
 
-interface WorkspaceIdRouteChildren {
-  WorkspaceIdAlertsRoute: typeof WorkspaceIdAlertsRoute
-  WorkspaceIdIncidentsRoute: typeof WorkspaceIdIncidentsRoute
-  WorkspaceIdLogsRoute: typeof WorkspaceIdLogsRoute
-  WorkspaceIdSettingsRoute: typeof WorkspaceIdSettingsRoute
-  WorkspaceIdStatusPagesRoute: typeof WorkspaceIdStatusPagesRoute
-  WorkspaceIdIndexLazyRoute: typeof WorkspaceIdIndexLazyRoute
-  WorkspaceIdMonitorsMonitorIdRoute: typeof WorkspaceIdMonitorsMonitorIdRoute
-  WorkspaceIdMonitorsIndexLazyRoute: typeof WorkspaceIdMonitorsIndexLazyRoute
+interface DashboardRouteChildren {
+  DashboardAlertsRoute: typeof DashboardAlertsRoute
+  DashboardIncidentsRoute: typeof DashboardIncidentsRoute
+  DashboardLogsRoute: typeof DashboardLogsRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardStatusPagesRoute: typeof DashboardStatusPagesRoute
+  DashboardIndexLazyRoute: typeof DashboardIndexLazyRoute
+  DashboardMonitorsMonitorIdRoute: typeof DashboardMonitorsMonitorIdRoute
+  DashboardMonitorsIndexLazyRoute: typeof DashboardMonitorsIndexLazyRoute
 }
 
-const WorkspaceIdRouteChildren: WorkspaceIdRouteChildren = {
-  WorkspaceIdAlertsRoute: WorkspaceIdAlertsRoute,
-  WorkspaceIdIncidentsRoute: WorkspaceIdIncidentsRoute,
-  WorkspaceIdLogsRoute: WorkspaceIdLogsRoute,
-  WorkspaceIdSettingsRoute: WorkspaceIdSettingsRoute,
-  WorkspaceIdStatusPagesRoute: WorkspaceIdStatusPagesRoute,
-  WorkspaceIdIndexLazyRoute: WorkspaceIdIndexLazyRoute,
-  WorkspaceIdMonitorsMonitorIdRoute: WorkspaceIdMonitorsMonitorIdRoute,
-  WorkspaceIdMonitorsIndexLazyRoute: WorkspaceIdMonitorsIndexLazyRoute,
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAlertsRoute: DashboardAlertsRoute,
+  DashboardIncidentsRoute: DashboardIncidentsRoute,
+  DashboardLogsRoute: DashboardLogsRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardStatusPagesRoute: DashboardStatusPagesRoute,
+  DashboardIndexLazyRoute: DashboardIndexLazyRoute,
+  DashboardMonitorsMonitorIdRoute: DashboardMonitorsMonitorIdRoute,
+  DashboardMonitorsIndexLazyRoute: DashboardMonitorsIndexLazyRoute,
 }
 
-const WorkspaceIdRouteWithChildren = WorkspaceIdRoute._addFileChildren(
-  WorkspaceIdRouteChildren,
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
-  WorkspaceIdRoute: WorkspaceIdRouteWithChildren,
+  DashboardRoute: DashboardRouteWithChildren,
   AccountSettingsRoute: AccountSettingsRoute,
   AuthPathnameIndexRoute: AuthPathnameIndexRoute,
 }
