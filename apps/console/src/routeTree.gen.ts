@@ -12,6 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceIdRouteImport } from './routes/$workspaceId'
+import { Route as AccountSettingsRouteImport } from './routes/account/settings'
 import { Route as WorkspaceIdStatusPagesRouteImport } from './routes/$workspaceId/status-pages'
 import { Route as WorkspaceIdSettingsRouteImport } from './routes/$workspaceId/settings'
 import { Route as WorkspaceIdLogsRouteImport } from './routes/$workspaceId/logs'
@@ -43,6 +44,11 @@ const WorkspaceIdIndexLazyRoute = WorkspaceIdIndexLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/$workspaceId/index.lazy').then((d) => d.Route),
 )
+const AccountSettingsRoute = AccountSettingsRouteImport.update({
+  id: '/account/settings',
+  path: '/account/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkspaceIdStatusPagesRoute = WorkspaceIdStatusPagesRouteImport.update({
   id: '/status-pages',
   path: '/status-pages',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
   '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
+  '/account/settings': typeof AccountSettingsRoute
   '/$workspaceId/': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
   '/auth/$pathname/': typeof AuthPathnameIndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
   '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
+  '/account/settings': typeof AccountSettingsRoute
   '/$workspaceId': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
   '/auth/$pathname': typeof AuthPathnameIndexRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/$workspaceId/logs': typeof WorkspaceIdLogsRoute
   '/$workspaceId/settings': typeof WorkspaceIdSettingsRoute
   '/$workspaceId/status-pages': typeof WorkspaceIdStatusPagesRoute
+  '/account/settings': typeof AccountSettingsRoute
   '/$workspaceId/': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
   '/auth/$pathname/': typeof AuthPathnameIndexRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/$workspaceId/logs'
     | '/$workspaceId/settings'
     | '/$workspaceId/status-pages'
+    | '/account/settings'
     | '/$workspaceId/'
     | '/$workspaceId/monitors/$monitorId'
     | '/auth/$pathname/'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/$workspaceId/logs'
     | '/$workspaceId/settings'
     | '/$workspaceId/status-pages'
+    | '/account/settings'
     | '/$workspaceId'
     | '/$workspaceId/monitors/$monitorId'
     | '/auth/$pathname'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/$workspaceId/logs'
     | '/$workspaceId/settings'
     | '/$workspaceId/status-pages'
+    | '/account/settings'
     | '/$workspaceId/'
     | '/$workspaceId/monitors/$monitorId'
     | '/auth/$pathname/'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   WorkspaceIdRoute: typeof WorkspaceIdRouteWithChildren
+  AccountSettingsRoute: typeof AccountSettingsRoute
   AuthPathnameIndexRoute: typeof AuthPathnameIndexRoute
 }
 
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$workspaceId/'
       preLoaderRoute: typeof WorkspaceIdIndexLazyRouteImport
       parentRoute: typeof WorkspaceIdRoute
+    }
+    '/account/settings': {
+      id: '/account/settings'
+      path: '/account/settings'
+      fullPath: '/account/settings'
+      preLoaderRoute: typeof AccountSettingsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/$workspaceId/status-pages': {
       id: '/$workspaceId/status-pages'
@@ -287,6 +307,7 @@ const WorkspaceIdRouteWithChildren = WorkspaceIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   WorkspaceIdRoute: WorkspaceIdRouteWithChildren,
+  AccountSettingsRoute: AccountSettingsRoute,
   AuthPathnameIndexRoute: AuthPathnameIndexRoute,
 }
 export const routeTree = rootRouteImport

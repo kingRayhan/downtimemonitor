@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { apiKey } from "@better-auth/api-key";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../database/db";
 import { APP_ENV } from "./env";
@@ -9,5 +10,7 @@ export const betterAuthServer = betterAuth({
   baseURL: APP_ENV.API_BASE_URL,
   basePath: "/auth",
   emailAndPassword: { enabled: true, autoSignIn: true },
-  trustedOrigins: ["http://localhost:3000", "http://localhost:5173"],
+  plugins: [apiKey()],
 });
+
+export const auth = betterAuthServer;
