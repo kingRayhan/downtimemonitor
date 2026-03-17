@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronsUpDown, Loader2, Plus } from "lucide-react"
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 
 import {
   DropdownMenu,
@@ -35,14 +35,6 @@ export function OrgSwitcher() {
     () => isRefetchingOrganizations || isRefetchingActiveOrganization,
     [isRefetchingOrganizations, isRefetchingActiveOrganization]
   )
-
-  // If there is no active organization once loading settles, send the user
-  // to the organization picker page.
-  // useEffect(() => {
-  //   if (!isRefetchingActiveOrganization && !activeOrganization) {
-  //     navigate({ to: "/organizations/pick" })
-  //   }
-  // }, [isRefetchingActiveOrganization, activeOrganization, navigate])
 
   if (isLoading) {
     return (
@@ -110,9 +102,7 @@ export function OrgSwitcher() {
                     </div>
                     <span className="flex-1 truncate">{org.name}</span>
                     {isActive && (
-                      <span className="text-xs text-muted-foreground">
-                        Active
-                      </span>
+                      <span className="size-2 rounded-full bg-primary" />
                     )}
                   </DropdownMenuItem>
                 )
