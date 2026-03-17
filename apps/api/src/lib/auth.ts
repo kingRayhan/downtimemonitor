@@ -9,4 +9,5 @@ export const betterAuthServer = betterAuth({
   baseURL: APP_ENV.API_BASE_URL,
   basePath: "/auth",
   emailAndPassword: { enabled: true, autoSignIn: true },
+  trustedOrigins: ["http://localhost:3000", "http://localhost:5173"],
 });

@@ -1,9 +1,18 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { betterAuthServer } from "./lib/auth";
+import { APP_ENV } from "./lib/env";
+
 const app = new Hono();
 
-app.use(cors({ origin: "http://localhost:5173" }));
+const corsMiddleware = cors({
+  origin: APP_ENV.AUTH_CLIENT_URLS.split(","),
+  credentials: true,
+  allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization"],
+});
+
+app.use(corsMiddleware);
 
 app.get("/", (c) =>
   c.json({
@@ -11,6 +20,8 @@ app.get("/", (c) =>
   }),
 );
 
-app.on(["POST", "GET"], "/auth/*", (c) => betterAuthServer.handler(c.req.raw));
+app.on(["POST", "GET"], "/auth/**", (c) => {
+  return betterAuthServer.handler(c.req.raw);
+});
 
 export default app;
