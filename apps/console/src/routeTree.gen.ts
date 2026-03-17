@@ -21,6 +21,7 @@ import { Route as WorkspaceIdMonitorsMonitorIdRouteImport } from './routes/$work
 
 const IndexLazyRouteImport = createFileRoute('/')()
 const WorkspaceIdIndexLazyRouteImport = createFileRoute('/$workspaceId/')()
+const AuthPathnameIndexLazyRouteImport = createFileRoute('/auth/$pathname/')()
 const WorkspaceIdMonitorsIndexLazyRouteImport = createFileRoute(
   '/$workspaceId/monitors/',
 )()
@@ -69,6 +70,13 @@ const WorkspaceIdAlertsRoute = WorkspaceIdAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => WorkspaceIdRoute,
 } as any)
+const AuthPathnameIndexLazyRoute = AuthPathnameIndexLazyRouteImport.update({
+  id: '/auth/$pathname/',
+  path: '/auth/$pathname/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/auth/$pathname/index.lazy').then((d) => d.Route),
+)
 const WorkspaceIdMonitorsIndexLazyRoute =
   WorkspaceIdMonitorsIndexLazyRouteImport.update({
     id: '/monitors/',
@@ -95,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/$workspaceId/': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
   '/$workspaceId/monitors/': typeof WorkspaceIdMonitorsIndexLazyRoute
+  '/auth/$pathname/': typeof AuthPathnameIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
@@ -106,6 +115,7 @@ export interface FileRoutesByTo {
   '/$workspaceId': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
   '/$workspaceId/monitors': typeof WorkspaceIdMonitorsIndexLazyRoute
+  '/auth/$pathname': typeof AuthPathnameIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,6 +129,7 @@ export interface FileRoutesById {
   '/$workspaceId/': typeof WorkspaceIdIndexLazyRoute
   '/$workspaceId/monitors/$monitorId': typeof WorkspaceIdMonitorsMonitorIdRoute
   '/$workspaceId/monitors/': typeof WorkspaceIdMonitorsIndexLazyRoute
+  '/auth/$pathname/': typeof AuthPathnameIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/$workspaceId/'
     | '/$workspaceId/monitors/$monitorId'
     | '/$workspaceId/monitors/'
+    | '/auth/$pathname/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +156,7 @@ export interface FileRouteTypes {
     | '/$workspaceId'
     | '/$workspaceId/monitors/$monitorId'
     | '/$workspaceId/monitors'
+    | '/auth/$pathname'
   id:
     | '__root__'
     | '/'
@@ -156,11 +169,13 @@ export interface FileRouteTypes {
     | '/$workspaceId/'
     | '/$workspaceId/monitors/$monitorId'
     | '/$workspaceId/monitors/'
+    | '/auth/$pathname/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   WorkspaceIdRoute: typeof WorkspaceIdRouteWithChildren
+  AuthPathnameIndexLazyRoute: typeof AuthPathnameIndexLazyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -221,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceIdAlertsRouteImport
       parentRoute: typeof WorkspaceIdRoute
     }
+    '/auth/$pathname/': {
+      id: '/auth/$pathname/'
+      path: '/auth/$pathname'
+      fullPath: '/auth/$pathname/'
+      preLoaderRoute: typeof AuthPathnameIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$workspaceId/monitors/': {
       id: '/$workspaceId/monitors/'
       path: '/monitors'
@@ -267,6 +289,7 @@ const WorkspaceIdRouteWithChildren = WorkspaceIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   WorkspaceIdRoute: WorkspaceIdRouteWithChildren,
+  AuthPathnameIndexLazyRoute: AuthPathnameIndexLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

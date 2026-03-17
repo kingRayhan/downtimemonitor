@@ -7,4 +7,6 @@ export const betterAuthServer = betterAuth({
   database: drizzleAdapter(db, { provider: "pg" }),
   secret: APP_ENV.AUTH_SECRET,
   baseURL: APP_ENV.API_BASE_URL,
+  basePath: "/auth",
+  emailAndPassword: { enabled: true, autoSignIn: true },
 });

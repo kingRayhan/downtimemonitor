@@ -3,7 +3,7 @@ import { cors } from "hono/cors";
 import { betterAuthServer } from "./lib/auth";
 const app = new Hono();
 
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173" }));
 
 app.get("/", (c) =>
   c.json({
@@ -11,8 +11,6 @@ app.get("/", (c) =>
   }),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) =>
-  betterAuthServer.handler(c.req.raw),
-);
+app.on(["POST", "GET"], "/auth/*", (c) => betterAuthServer.handler(c.req.raw));
 
 export default app;

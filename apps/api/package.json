@@ -1,10 +1,10 @@
 {
-  "name": "api",
+  "name": "@downnodes/api",
   "version": "1.0.0",
   "description": "",
   "scripts": {
     "start": "bun run src/index.ts",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts --env-file .env"
   },
   "author": "",
   "license": "ISC",
