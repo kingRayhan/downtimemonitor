@@ -8,7 +8,7 @@ export const Route = createRootRoute({
     const session = await betterAuthClient.getSession()
     const organizations = await betterAuthClient.organization.list()
     const activeOrganization =
-      betterAuthClient.organization.getFullOrganization()
+      await betterAuthClient.organization.getFullOrganization()
 
     return {
       ...ctx,
