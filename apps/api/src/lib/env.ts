@@ -8,6 +8,10 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid URL"),
   AUTH_SECRET: z.string().min(1, "AUTH_SECRET must be a valid secret"),
   AUTH_CLIENT_URLS: z.string(),
+
+  // Google OAuth
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
 });
 
 export const APP_ENV: z.infer<typeof envSchema> = envSchema.parse(process.env);

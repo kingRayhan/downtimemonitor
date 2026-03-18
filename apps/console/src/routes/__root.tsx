@@ -6,9 +6,15 @@ export const Route = createRootRoute({
   component: RootComponent,
   beforeLoad: async (ctx) => {
     const session = await betterAuthClient.getSession()
+    const organizations = await betterAuthClient.organization.list()
+    const activeOrganization =
+      betterAuthClient.organization.getFullOrganization()
+
     return {
       ...ctx,
       session,
+      organizations,
+      activeOrganization,
     }
   },
   pendingComponent: () => <AppLoadingScreen label="Loading session…" />,
