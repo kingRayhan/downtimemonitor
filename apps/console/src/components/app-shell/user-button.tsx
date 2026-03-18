@@ -1,4 +1,4 @@
-import { useSession } from "@/hooks/useSession"
+import { useAppContext } from "@/hooks/use-app-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import { useConfirm } from "@/hooks/useConfirm"
 import { betterAuthClient } from "@/lib/auth.client"
 
 const UserButton = () => {
-  const session = useSession()
+  const session = useAppContext()
   const confirm = useConfirm()
 
   const handleLogout = async () => {

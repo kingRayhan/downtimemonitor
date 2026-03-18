@@ -2,19 +2,11 @@
 
 import * as React from "react"
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
 import {
   CameraIcon,
   ChartBarIcon,
   CircleHelpIcon,
-  CommandIcon,
   DatabaseIcon,
   FileChartColumnIcon,
   FileIcon,
@@ -156,9 +148,9 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      {/* <SidebarHeader>
+      <SidebarHeader>
         <OrgSwitcher />
-      </SidebarHeader> */}
+      </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         {/* <NavDocuments items={data.documents} /> */}

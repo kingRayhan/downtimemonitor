@@ -1,7 +1,6 @@
 "use client"
 
-import { ChevronsUpDown, Loader2, Plus } from "lucide-react"
-import { useMemo } from "react"
+import { ChevronsUpDown, Plus } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -18,38 +17,29 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useAppContext } from "@/hooks/use-app-context"
 import { betterAuthClient } from "@/lib/auth.client"
 import { useNavigate } from "@tanstack/react-router"
 
 export function OrgSwitcher() {
   const { isMobile } = useSidebar()
   const navigate = useNavigate()
-  const { data: organizations, isRefetching: isRefetchingOrganizations } =
-    betterAuthClient.useListOrganizations()
-  const {
-    data: activeOrganization,
-    isRefetching: isRefetchingActiveOrganization,
-  } = betterAuthClient.useActiveOrganization()
+  const { organizations, activeOrganization } = useAppContext()
 
-  const isLoading = useMemo(
-    () => isRefetchingOrganizations || isRefetchingActiveOrganization,
-    [isRefetchingOrganizations, isRefetchingActiveOrganization]
-  )
-
-  if (isLoading) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg" className="gap-2">
-            <Loader2 className="size-4 animate-spin" />
-            <span className="text-sm text-muted-foreground">
-              Loading organizations...
-            </span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    )
-  }
+  // if (isLoading) {
+  //   return (
+  //     <SidebarMenu>
+  //       <SidebarMenuItem>
+  //         <SidebarMenuButton size="lg" className="gap-2">
+  //           <Loader2 className="size-4 animate-spin" />
+  //           <span className="text-sm text-muted-foreground">
+  //             Loading organizations...
+  //           </span>
+  //         </SidebarMenuButton>
+  //       </SidebarMenuItem>
+  //     </SidebarMenu>
+  //   )
+  // }
 
   return (
     <SidebarMenu>

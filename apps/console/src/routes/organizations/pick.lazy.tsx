@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   createLazyFileRoute,
-  redirect,
   useNavigate,
 } from "@tanstack/react-router"
+import { useAppContext } from "@/hooks/use-app-context"
 
 export const Route = createLazyFileRoute("/organizations/pick")({
   component: RouteComponent,
@@ -13,9 +13,7 @@ export const Route = createLazyFileRoute("/organizations/pick")({
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const { data: organizations, isRefetching } =
-    betterAuthClient.useListOrganizations()
-  const { data: activeOrganization } = betterAuthClient.useActiveOrganization()
+  const { organizations, activeOrganization } = useAppContext()
 
   const handleSelect = async (orgId: string) => {
     try {
@@ -30,14 +28,6 @@ function RouteComponent() {
 
   const handleCreate = () => {
     navigate({ to: "/organizations/create" })
-  }
-
-  if (isRefetching) {
-    return (
-      <main className="container mx-auto flex grow flex-col items-center justify-center p-4 md:p-6">
-        <p className="text-sm text-muted-foreground">Loading organizations…</p>
-      </main>
-    )
   }
 
   if (!organizations || organizations.length === 0) {
