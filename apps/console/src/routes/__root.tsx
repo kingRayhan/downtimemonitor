@@ -1,4 +1,5 @@
 import { betterAuthClient } from "@/lib/auth.client"
+import { AppLoadingScreen } from "@/components/app-loading-screen"
 import { Outlet, createRootRoute } from "@tanstack/react-router"
 
 export const Route = createRootRoute({
@@ -10,6 +11,7 @@ export const Route = createRootRoute({
       session,
     }
   },
+  pendingComponent: () => <AppLoadingScreen label="Loading session…" />,
 })
 
 function RootComponent() {
