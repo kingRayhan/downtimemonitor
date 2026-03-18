@@ -12,6 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OrganizationsRouteImport } from './routes/organizations'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as AccountSettingsRouteImport } from './routes/account/settings'
 import { Route as DashboardStatusPagesRouteImport } from './routes/_dashboard/status-pages'
@@ -19,7 +20,6 @@ import { Route as DashboardSettingsRouteImport } from './routes/_dashboard/setti
 import { Route as DashboardLogsRouteImport } from './routes/_dashboard/logs'
 import { Route as DashboardIncidentsRouteImport } from './routes/_dashboard/incidents'
 import { Route as DashboardAlertsRouteImport } from './routes/_dashboard/alerts'
-import { Route as AuthPathnameIndexRouteImport } from './routes/auth/$pathname/index'
 import { Route as DashboardMonitorsMonitorIdRouteImport } from './routes/_dashboard/monitors.$monitorId'
 
 const DashboardIndexLazyRouteImport = createFileRoute('/_dashboard/')()
@@ -29,6 +29,14 @@ const OrganizationsPickLazyRouteImport = createFileRoute(
 const OrganizationsCreateLazyRouteImport = createFileRoute(
   '/organizations/create',
 )()
+const AuthSignUpLazyRouteImport = createFileRoute('/auth/sign-up')()
+const AuthSignInLazyRouteImport = createFileRoute('/auth/sign-in')()
+const AuthResetPasswordLazyRouteImport = createFileRoute(
+  '/auth/reset-password',
+)()
+const AuthForgotPasswordLazyRouteImport = createFileRoute(
+  '/auth/forgot-password',
+)()
 const DashboardMonitorsIndexLazyRouteImport = createFileRoute(
   '/_dashboard/monitors/',
 )()
@@ -36,6 +44,11 @@ const DashboardMonitorsIndexLazyRouteImport = createFileRoute(
 const OrganizationsRoute = OrganizationsRouteImport.update({
   id: '/organizations',
   path: '/organizations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -62,6 +75,30 @@ const OrganizationsCreateLazyRoute = OrganizationsCreateLazyRouteImport.update({
   getParentRoute: () => OrganizationsRoute,
 } as any).lazy(() =>
   import('./routes/organizations/create.lazy').then((d) => d.Route),
+)
+const AuthSignUpLazyRoute = AuthSignUpLazyRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => AuthRoute,
+} as any).lazy(() => import('./routes/auth/sign-up.lazy').then((d) => d.Route))
+const AuthSignInLazyRoute = AuthSignInLazyRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => AuthRoute,
+} as any).lazy(() => import('./routes/auth/sign-in.lazy').then((d) => d.Route))
+const AuthResetPasswordLazyRoute = AuthResetPasswordLazyRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => AuthRoute,
+} as any).lazy(() =>
+  import('./routes/auth/reset-password.lazy').then((d) => d.Route),
+)
+const AuthForgotPasswordLazyRoute = AuthForgotPasswordLazyRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => AuthRoute,
+} as any).lazy(() =>
+  import('./routes/auth/forgot-password.lazy').then((d) => d.Route),
 )
 const AccountSettingsRoute = AccountSettingsRouteImport.update({
   id: '/account/settings',
@@ -103,11 +140,6 @@ const DashboardMonitorsIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/_dashboard/monitors/index.lazy').then((d) => d.Route),
   )
-const AuthPathnameIndexRoute = AuthPathnameIndexRouteImport.update({
-  id: '/auth/$pathname/',
-  path: '/auth/$pathname/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardMonitorsMonitorIdRoute =
   DashboardMonitorsMonitorIdRouteImport.update({
     id: '/monitors/$monitorId',
@@ -117,6 +149,7 @@ const DashboardMonitorsMonitorIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof DashboardIndexLazyRoute
+  '/auth': typeof AuthRouteWithChildren
   '/organizations': typeof OrganizationsRouteWithChildren
   '/alerts': typeof DashboardAlertsRoute
   '/incidents': typeof DashboardIncidentsRoute
@@ -124,13 +157,17 @@ export interface FileRoutesByFullPath {
   '/settings': typeof DashboardSettingsRoute
   '/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordLazyRoute
+  '/auth/reset-password': typeof AuthResetPasswordLazyRoute
+  '/auth/sign-in': typeof AuthSignInLazyRoute
+  '/auth/sign-up': typeof AuthSignUpLazyRoute
   '/organizations/create': typeof OrganizationsCreateLazyRoute
   '/organizations/pick': typeof OrganizationsPickLazyRoute
   '/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
-  '/auth/$pathname/': typeof AuthPathnameIndexRoute
   '/monitors/': typeof DashboardMonitorsIndexLazyRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRouteWithChildren
   '/organizations': typeof OrganizationsRouteWithChildren
   '/alerts': typeof DashboardAlertsRoute
   '/incidents': typeof DashboardIncidentsRoute
@@ -138,16 +175,20 @@ export interface FileRoutesByTo {
   '/settings': typeof DashboardSettingsRoute
   '/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordLazyRoute
+  '/auth/reset-password': typeof AuthResetPasswordLazyRoute
+  '/auth/sign-in': typeof AuthSignInLazyRoute
+  '/auth/sign-up': typeof AuthSignUpLazyRoute
   '/organizations/create': typeof OrganizationsCreateLazyRoute
   '/organizations/pick': typeof OrganizationsPickLazyRoute
   '/': typeof DashboardIndexLazyRoute
   '/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
-  '/auth/$pathname': typeof AuthPathnameIndexRoute
   '/monitors': typeof DashboardMonitorsIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_dashboard': typeof DashboardRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
   '/organizations': typeof OrganizationsRouteWithChildren
   '/_dashboard/alerts': typeof DashboardAlertsRoute
   '/_dashboard/incidents': typeof DashboardIncidentsRoute
@@ -155,17 +196,21 @@ export interface FileRoutesById {
   '/_dashboard/settings': typeof DashboardSettingsRoute
   '/_dashboard/status-pages': typeof DashboardStatusPagesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordLazyRoute
+  '/auth/reset-password': typeof AuthResetPasswordLazyRoute
+  '/auth/sign-in': typeof AuthSignInLazyRoute
+  '/auth/sign-up': typeof AuthSignUpLazyRoute
   '/organizations/create': typeof OrganizationsCreateLazyRoute
   '/organizations/pick': typeof OrganizationsPickLazyRoute
   '/_dashboard/': typeof DashboardIndexLazyRoute
   '/_dashboard/monitors/$monitorId': typeof DashboardMonitorsMonitorIdRoute
-  '/auth/$pathname/': typeof AuthPathnameIndexRoute
   '/_dashboard/monitors/': typeof DashboardMonitorsIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/organizations'
     | '/alerts'
     | '/incidents'
@@ -173,13 +218,17 @@ export interface FileRouteTypes {
     | '/settings'
     | '/status-pages'
     | '/account/settings'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/organizations/create'
     | '/organizations/pick'
     | '/monitors/$monitorId'
-    | '/auth/$pathname/'
     | '/monitors/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
     | '/organizations'
     | '/alerts'
     | '/incidents'
@@ -187,15 +236,19 @@ export interface FileRouteTypes {
     | '/settings'
     | '/status-pages'
     | '/account/settings'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/organizations/create'
     | '/organizations/pick'
     | '/'
     | '/monitors/$monitorId'
-    | '/auth/$pathname'
     | '/monitors'
   id:
     | '__root__'
     | '/_dashboard'
+    | '/auth'
     | '/organizations'
     | '/_dashboard/alerts'
     | '/_dashboard/incidents'
@@ -203,19 +256,22 @@ export interface FileRouteTypes {
     | '/_dashboard/settings'
     | '/_dashboard/status-pages'
     | '/account/settings'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/organizations/create'
     | '/organizations/pick'
     | '/_dashboard/'
     | '/_dashboard/monitors/$monitorId'
-    | '/auth/$pathname/'
     | '/_dashboard/monitors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
   OrganizationsRoute: typeof OrganizationsRouteWithChildren
   AccountSettingsRoute: typeof AccountSettingsRoute
-  AuthPathnameIndexRoute: typeof AuthPathnameIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -225,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/organizations'
       fullPath: '/organizations'
       preLoaderRoute: typeof OrganizationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_dashboard': {
@@ -254,6 +317,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/organizations/create'
       preLoaderRoute: typeof OrganizationsCreateLazyRouteImport
       parentRoute: typeof OrganizationsRoute
+    }
+    '/auth/sign-up': {
+      id: '/auth/sign-up'
+      path: '/sign-up'
+      fullPath: '/auth/sign-up'
+      preLoaderRoute: typeof AuthSignUpLazyRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/sign-in': {
+      id: '/auth/sign-in'
+      path: '/sign-in'
+      fullPath: '/auth/sign-in'
+      preLoaderRoute: typeof AuthSignInLazyRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordLazyRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordLazyRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/account/settings': {
       id: '/account/settings'
@@ -304,13 +395,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMonitorsIndexLazyRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/auth/$pathname/': {
-      id: '/auth/$pathname/'
-      path: '/auth/$pathname'
-      fullPath: '/auth/$pathname/'
-      preLoaderRoute: typeof AuthPathnameIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_dashboard/monitors/$monitorId': {
       id: '/_dashboard/monitors/$monitorId'
       path: '/monitors/$monitorId'
@@ -347,6 +431,22 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface AuthRouteChildren {
+  AuthForgotPasswordLazyRoute: typeof AuthForgotPasswordLazyRoute
+  AuthResetPasswordLazyRoute: typeof AuthResetPasswordLazyRoute
+  AuthSignInLazyRoute: typeof AuthSignInLazyRoute
+  AuthSignUpLazyRoute: typeof AuthSignUpLazyRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthForgotPasswordLazyRoute: AuthForgotPasswordLazyRoute,
+  AuthResetPasswordLazyRoute: AuthResetPasswordLazyRoute,
+  AuthSignInLazyRoute: AuthSignInLazyRoute,
+  AuthSignUpLazyRoute: AuthSignUpLazyRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 interface OrganizationsRouteChildren {
   OrganizationsCreateLazyRoute: typeof OrganizationsCreateLazyRoute
   OrganizationsPickLazyRoute: typeof OrganizationsPickLazyRoute
@@ -363,9 +463,9 @@ const OrganizationsRouteWithChildren = OrganizationsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
   OrganizationsRoute: OrganizationsRouteWithChildren,
   AccountSettingsRoute: AccountSettingsRoute,
-  AuthPathnameIndexRoute: AuthPathnameIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { AccountSettingsCards } from "@daveyplate/better-auth-ui"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowLeftIcon } from "lucide-react"
 
@@ -18,7 +17,9 @@ function RouteComponent() {
           </Link>
         </Button>
       </div>
-      <AccountSettingsCards className="max-w-xl" />
+      <div className="max-w-xl text-sm text-muted-foreground">
+        Account settings UI coming soon.
+      </div>
     </div>
   )
 }
