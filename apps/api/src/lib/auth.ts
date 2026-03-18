@@ -5,14 +5,6 @@ import { organization } from "better-auth/plugins";
 import { db } from "../database/db";
 import { APP_ENV } from "./env";
 
-function slugify(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export const betterAuthServer = betterAuth({
   database: drizzleAdapter(db, { provider: "pg" }),
   secret: APP_ENV.AUTH_SECRET,
