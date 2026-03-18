@@ -21,7 +21,7 @@ function RouteComponent() {
     try {
       await betterAuthClient.organization.setActive({ organizationId: orgId })
 
-      await navigate({ to: "/" })
+      await navigate({ to: "/", search: {} })
     } catch (error) {
       console.error(error)
       alert("Failed to switch organization. Please try again.")
