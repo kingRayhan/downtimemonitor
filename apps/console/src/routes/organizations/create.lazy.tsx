@@ -1,13 +1,5 @@
 import { Button } from "@/components/ui/button"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   Field,
   FieldError,
   FieldGroup,
@@ -23,7 +15,6 @@ import * as z from "zod"
 
 const formSchema = z.object({
   name: z.string().min(5, "Title must be at least 5 characters."),
-  slug: z.string().max(64, "Slug must be at most 64 characters.").optional(),
 })
 
 export const Route = createLazyFileRoute("/organizations/create")({
@@ -36,22 +27,23 @@ function RouteComponent() {
 
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      slug: "",
-    },
+    defaultValues: { name: "" },
   })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { error } = await betterAuthClient.organization.create({
-        name: values.name.trim(),
-        slug: values.slug?.trim() || "",
-      })
+      const { error, data: newOrganization } =
+        await betterAuthClient.organization.create({
+          name: values.name.trim(),
+          slug: `${values.name.trim().toLowerCase().replace(/ /g, "-")}-${Date.now()}`,
+        })
 
       if (error) {
         throw new Error(error.message ?? "Failed to create organization")
       }
+      await betterAuthClient.organization.setActive({
+        organizationId: newOrganization.id,
+      })
 
       await router.navigate({ to: "/" })
     } catch (err) {
@@ -66,82 +58,63 @@ function RouteComponent() {
 
   return (
     <main className="container mx-auto flex grow flex-col items-center justify-center p-4 md:p-6">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Create organization</CardTitle>
-          <CardDescription>
+      <div className="w-full max-w-md">
+        <div className="mb-6 space-y-1 text-left">
+          <h1 className="text-xl font-semibold">Create organization</h1>
+          <p className="text-sm text-muted-foreground">
             Organizations let you separate workspaces, members, and permissions.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {serverError && (
-            <div className="mb-4 rounded-md bg-destructive/10 p-4 text-sm text-destructive">
-              {serverError}
-            </div>
-          )}
+          </p>
+        </div>
 
-          <form
-            id="org-create-form"
-            onSubmit={form.handleSubmit(onSubmit)}
-            noValidate
-          >
-            <FieldGroup>
-              <Controller
-                name="name"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="org-name">Name</FieldLabel>
-                    <Input
-                      {...field}
-                      id="org-name"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Acme Inc."
-                      autoComplete="off"
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-              <Controller
-                name="slug"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="org-slug">Slug</FieldLabel>
-                    <Input
-                      {...field}
-                      id="org-slug"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="acme-inc"
-                      autoComplete="off"
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-            </FieldGroup>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
-          </Button>
-          <Button
-            type="submit"
-            form="org-create-form"
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting
-              ? "Creating..."
-              : "Create organization"}
-          </Button>
-        </CardFooter>
-      </Card>
+        {serverError && (
+          <div className="mb-4 rounded-md bg-destructive/10 p-4 text-sm text-destructive">
+            {serverError}
+          </div>
+        )}
+
+        <form
+          id="org-create-form"
+          onSubmit={form.handleSubmit(onSubmit)}
+          noValidate
+        >
+          <FieldGroup>
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="org-name">Name</FieldLabel>
+                  <Input
+                    {...field}
+                    id="org-name"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Acme Inc."
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+
+          <div className="mt-6 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => form.reset()}
+            >
+              Reset
+            </Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting
+                ? "Creating..."
+                : "Create organization"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </main>
   )
 }
