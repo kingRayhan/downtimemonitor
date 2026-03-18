@@ -23,6 +23,7 @@ import {
   Link,
   redirect,
   useNavigate,
+  useRouteContext,
   useSearch,
 } from "@tanstack/react-router"
 import { Controller, useForm } from "react-hook-form"
@@ -74,10 +75,6 @@ function RouteComponent() {
     }
     // eslint-disable-next-line no-alert
     alert("Password reset successful. You can now sign in.")
-    await navigate({
-      to: "/auth/sign-in",
-      search: { redirectTo: search.redirectTo },
-    })
   }
 
   return (
