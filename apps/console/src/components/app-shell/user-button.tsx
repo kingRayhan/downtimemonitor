@@ -8,9 +8,25 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
+import { useConfirm } from "@/hooks/useConfirm"
+import { betterAuthClient } from "@/lib/auth.client"
 
 const UserButton = () => {
   const session = useSession()
+  const confirm = useConfirm()
+
+  const handleLogout = async () => {
+    confirm.trigger({
+      title: "Log out",
+      description: "Are you sure you want to log out?",
+      confirmText: "Log out",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        await betterAuthClient.signOut()
+        window.location.href = "/"
+      },
+    })
+  }
   return (
     <>
       {/* <pre>{JSON.stringify(session, null, 2)}</pre> */}
@@ -35,7 +51,7 @@ const UserButton = () => {
           </DropdownMenuGroup>
 
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               Log out
               <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
             </DropdownMenuItem>

@@ -2,6 +2,7 @@ import { ConvexProvider, ConvexReactClient } from "convex/react"
 import type { PropsWithChildren } from "react"
 import WorkspaceProvider from "./WorkspaceProvider"
 import { ThemeProvider } from "@/components/theme-provider"
+import ConfirmProvider from "./ConfirmProvider"
 
 const CommonProviders: React.FC<PropsWithChildren> = ({ children }) => {
   const convex = new ConvexReactClient(
@@ -10,9 +11,11 @@ const CommonProviders: React.FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <ThemeProvider>
-      <ConvexProvider client={convex}>
-        <WorkspaceProvider>{children}</WorkspaceProvider>
-      </ConvexProvider>
+      <ConfirmProvider>
+        <ConvexProvider client={convex}>
+          <WorkspaceProvider>{children}</WorkspaceProvider>
+        </ConvexProvider>
+      </ConfirmProvider>
     </ThemeProvider>
   )
 }
