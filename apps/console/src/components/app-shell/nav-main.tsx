@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button"
-import { Link, useRouterState } from "@tanstack/react-router"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -7,7 +5,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { CirclePlusIcon, MailIcon } from "lucide-react"
+import { Link, useRouterState } from "@tanstack/react-router"
 
 export function NavMain({
   items,
@@ -20,9 +18,6 @@ export function NavMain({
 }) {
   const routerState = useRouterState()
   const pathname = routerState.location.pathname
-
-  const segments = pathname.split("/").filter(Boolean)
-  const workspaceId = segments[0]
 
   return (
     <SidebarGroup>
@@ -50,16 +45,10 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               {(() => {
-                const targetPath =
-                  workspaceId && item.url !== "/"
-                    ? `/${workspaceId}${item.url}`
-                    : workspaceId && item.url === "/"
-                      ? `/${workspaceId}`
-                      : item.url
+                const targetPath = item.url
                 const isActive =
-                  targetPath === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(targetPath)
+                  pathname === targetPath ||
+                  pathname.startsWith(`${targetPath}/`)
 
                 return (
                   <SidebarMenuButton

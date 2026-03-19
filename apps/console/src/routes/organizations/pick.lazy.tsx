@@ -1,11 +1,8 @@
 import { betterAuthClient } from "@/lib/auth.client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  createLazyFileRoute,
-  useNavigate,
-} from "@tanstack/react-router"
-import { useAppContext } from "@/hooks/use-app-context"
+import { createLazyFileRoute, useNavigate } from "@tanstack/react-router"
+import { useAppContext } from "@/hooks/use-auth-context"
 
 export const Route = createLazyFileRoute("/organizations/pick")({
   component: RouteComponent,

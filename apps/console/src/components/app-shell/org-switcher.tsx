@@ -17,14 +17,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useAppContext } from "@/hooks/use-app-context"
 import { betterAuthClient } from "@/lib/auth.client"
 import { useNavigate } from "@tanstack/react-router"
+import { useAuth } from "@/store/auth.atom"
 
 export function OrgSwitcher() {
   const { isMobile } = useSidebar()
   const navigate = useNavigate()
-  const { organizations, activeOrganization } = useAppContext()
+  const { organizations, activeOrganization } = useAuth()
 
   // if (isLoading) {
   //   return (

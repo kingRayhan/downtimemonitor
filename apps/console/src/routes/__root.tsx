@@ -1,20 +1,23 @@
-import { betterAuthClient } from "@/lib/auth.client"
 import { AppLoadingScreen } from "@/components/app-loading-screen"
-import { Outlet, createRootRoute } from "@tanstack/react-router"
+import { jotaiStore } from "@/store"
+import {
+  appAuthAtom,
+  fetchAuthApis,
+  type IAuthContext,
+} from "@/store/auth.atom"
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router"
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ auth: IAuthContext }>()({
   component: RootComponent,
   beforeLoad: async (ctx) => {
-    const session = await betterAuthClient.getSession()
-    const organizations = await betterAuthClient.organization.list()
-    const activeOrganization =
-      await betterAuthClient.organization.getFullOrganization()
+    const auth = jotaiStore.get(appAuthAtom)
+    if (!auth.isAuthApiCalled) {
+      await fetchAuthApis()
+    }
 
     return {
       ...ctx,
-      session,
-      organizations,
-      activeOrganization,
+      auth,
     }
   },
   pendingComponent: () => <AppLoadingScreen label="Loading session…" />,

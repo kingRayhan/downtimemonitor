@@ -1,4 +1,3 @@
-import { useAppContext } from "@/hooks/use-app-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +9,10 @@ import {
 } from "../ui/dropdown-menu"
 import { useConfirm } from "@/hooks/useConfirm"
 import { betterAuthClient } from "@/lib/auth.client"
+import { useAuth } from "@/store/auth.atom"
 
 const UserButton = () => {
-  const session = useAppContext()
+  const auth = useAuth()
   const confirm = useConfirm()
 
   const handleLogout = async () => {
@@ -31,7 +31,7 @@ const UserButton = () => {
     <>
       {/* <pre>{JSON.stringify(session, null, 2)}</pre> */}
       <DropdownMenu>
-        <DropdownMenuTrigger>{session?.user.name}</DropdownMenuTrigger>
+        <DropdownMenuTrigger>{auth?.user?.name}</DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-40" align="start">
           <DropdownMenuGroup>
