@@ -7,6 +7,8 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { betterAuthClient } from "@/lib/auth.client"
+import { jotaiStore } from "@/store"
+import { appAuthAtom, fetchAuthApis } from "@/store/auth.atom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createLazyFileRoute, useRouter } from "@tanstack/react-router"
 import { useState } from "react"
@@ -41,10 +43,11 @@ function RouteComponent() {
       if (error) {
         throw new Error(error.message ?? "Failed to create organization")
       }
-      await betterAuthClient.organization.setActive({
-        organizationId: newOrganization.id,
-      })
 
+      await fetchAuthApis()
+      jotaiStore.set(appAuthAtom, (draft) => {
+        draft.activeOrganization = newOrganization
+      })
       await router.navigate({ to: "/" })
     } catch (err) {
       console.error(err)

@@ -29,13 +29,15 @@ export async function fetchAuthApis() {
 
     jotaiStore.set(appAuthAtom, (draft) => {
       draft.session = session.data as Session | null
+      draft.user = session.data?.user || null
       draft.organizations = organizations.data || []
       draft.activeOrganization = activeOrganization.data || null
       draft.isAuthApiCalled = true
     })
 
     return {
-      session: session.data,
+      session: session.data?.session,
+      user: session.data?.user,
       organizations: organizations.data,
       activeOrganization: activeOrganization.data,
       isAuthApiCalled: true,
@@ -43,6 +45,7 @@ export async function fetchAuthApis() {
   } catch {
     jotaiStore.set(appAuthAtom, (draft) => {
       draft.session = null
+      draft.user = null
       draft.organizations = []
       draft.activeOrganization = null
       draft.isAuthApiCalled = false
@@ -50,6 +53,7 @@ export async function fetchAuthApis() {
 
     return {
       session: null,
+      user: null,
       organizations: [],
       activeOrganization: null,
       isAuthApiCalled: false,

@@ -29,7 +29,7 @@ const UserButton = () => {
   }
   return (
     <>
-      {/* <pre>{JSON.stringify(session, null, 2)}</pre> */}
+      {/* <pre>{JSON.stringify(auth.user, null, 2)}</pre> */}
       <DropdownMenu>
         <DropdownMenuTrigger>{auth?.user?.name}</DropdownMenuTrigger>
 

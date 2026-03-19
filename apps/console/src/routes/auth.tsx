@@ -3,9 +3,10 @@ import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
 export const Route = createFileRoute("/auth")({
   component: RouteComponent,
   beforeLoad: async (ctx) => {
-    if (ctx.context.session.data?.session) {
+    if (ctx?.context?.auth?.session) {
       return redirect({ to: "/" })
     }
+    return ctx
   },
 })
 
