@@ -18,28 +18,14 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { betterAuthClient } from "@/lib/auth.client"
+import { jotaiStore } from "@/store"
+import { appAuthAtom, useAuth } from "@/store/auth.atom"
 import { useNavigate } from "@tanstack/react-router"
-import { useAuth } from "@/store/auth.atom"
 
 export function OrgSwitcher() {
   const { isMobile } = useSidebar()
   const navigate = useNavigate()
   const { organizations, activeOrganization } = useAuth()
-
-  // if (isLoading) {
-  //   return (
-  //     <SidebarMenu>
-  //       <SidebarMenuItem>
-  //         <SidebarMenuButton size="lg" className="gap-2">
-  //           <Loader2 className="size-4 animate-spin" />
-  //           <span className="text-sm text-muted-foreground">
-  //             Loading organizations...
-  //           </span>
-  //         </SidebarMenuButton>
-  //       </SidebarMenuItem>
-  //     </SidebarMenu>
-  //   )
-  // }
 
   return (
     <SidebarMenu>
@@ -79,11 +65,14 @@ export function OrgSwitcher() {
                   <DropdownMenuItem
                     key={org.id}
                     className="gap-2 p-2"
-                    onClick={() =>
+                    onClick={() => {
                       betterAuthClient.organization.setActive({
                         organizationId: org.id,
                       })
-                    }
+                      jotaiStore.set(appAuthAtom, (draft) => {
+                        draft.activeOrganization = org
+                      })
+                    }}
                   >
                     <div className="flex size-6 items-center justify-center rounded-md border">
                       <span className="text-xs font-semibold">
