@@ -14,7 +14,6 @@ export function SiteHeader() {
         <h1 className="text-base font-medium">Documents</h1>
       </div>
       <div className="flex items-center gap-2 px-4">
-        {/* <UserButton size={"icon"} /> */}
         <UserButton />
       </div>
     </header>
